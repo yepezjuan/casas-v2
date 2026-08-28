@@ -2,8 +2,60 @@
 
 <main class="container">
   <div class="row justify-content-around mt-5">
-    this is where you will see you clients for the week
+    this is where you will see you clients for the week and add new clients
   </div>
+
+  <section class="card">
+    <div class="card-body">
+      <h2 class="card-title">Add a Client</h2>
+      <form action="/clients/createClient" method="POST">
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="clientName"
+            name="clientName"
+            placeholder=""
+          />
+          <label for="clientName">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="clientPhone"
+            name="clientPhone"
+            placeholder=""
+          />
+          <label for="clientPhone">Phone</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="clientAddress"
+            name="clientAddress"
+            placeholder=""
+          />
+          <label for="clientAddress">Address</label>
+        </div>
+        <div class="form-floating mb-3">
+          <select class="form-select" id="clientDay" name="clientDay">
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+          </select>
+          <label for="clientDay">Day</label>
+        </div>
+        <button type="submit" class="btn btn-primary mb-3" value="Add Client">
+          Submit
+        </button>
+      </form>
+    </div>
+  </section>
 </main>
 
 <%- include('partials/footer') -%>

@@ -1,0 +1,42 @@
+
+erDiagram
+    USER ||--o{ CLIENT : owns
+    USER ||--o{ CLIENT_LIST : owns
+    USER ||--o{ SERVICE_VISIT : logs
+    CLIENT ||--o{ SERVICE_VISIT : "is serviced in"
+    CLIENT }o--o{ CLIENT_LIST : "member of"
+
+    USER {
+        ObjectId _id PK
+        String userName UK
+        String email UK
+        String password
+    }
+
+    CLIENT {
+        ObjectId _id PK
+        String userId FK "recommend: ObjectId ref User, not String"
+        String name
+        String phone
+        String address
+        Number lat
+        Number lng
+        String day "enum: Monday..Saturday"
+        Boolean completed "legacy/unused - drop once SERVICE_VISIT ships"
+    }
+
+    CLIENT_LIST {
+        ObjectId _id PK
+        String userId FK "recommend: ObjectId ref User, not String"
+        String name
+        Array clientIds "[ObjectId ref Client]"
+    }
+
+    SERVICE_VISIT {
+        ObjectId _id PK
+        String userId FK
+        ObjectId clientId FK
+        String visitDate "YYYY-MM-DD, one row per serviced calendar day"
+        Date createdAt
+        Date updatedAt
+    }
