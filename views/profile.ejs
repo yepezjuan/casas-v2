@@ -1,21 +1,60 @@
 <%- include('partials/header') -%>
 <div class="container">
-  <div class="row mt-5">
-      <div class="col-6">
+  <div class="card mb-4">
+      <div class="card-body">
           <div>
               <p><strong>User Name</strong>: <%= user.userName %></p>
               <p><strong>Email</strong>: <%= user.email %></p>
               <a href="/logout" class="col-3 btn btn-primary">Logout</a>
           </div>
-          
-      </div>
-      <div class="col-6">
-        
-        <div class="row justify-content-center mt-5">
+
+          <div class="row justify-content-center mt-5">
           <a class="btn btn-primary" href="/dashboard">Return to dashboard</a>
         </div>  
-      </div>  
+          
+      </div>
+      
     </div>
+
+    <%# ------- CLIENT LIST ------%>
+    <section class="card">
+        <h2 class="card-title"><%= user.userName%> HAS <%= clients.length%> Clients</h2>
+
+        <div id="day-filter-tabs">
+          <button class="filter-tab active" data-day="All">All</button>
+          <button class="filter-tab" data-day="Monday">Mon</button>
+          <button class="filter-tab" data-day="Tuesday">Tue</button>
+          <button class="filter-tab" data-day="Wednesday">Wed</button>
+          <button class="filter-tab" data-day="Thursday">Thu</button>
+          <button class="filter-tab" data-day="Friday">Fri</button>
+          <button class="filter-tab" data-day="Saturday">Sat</button>
+        </div>
+
+        <table class="client-table" id="clients-list-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Phone</th>
+              <th>Day</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+          <% clients.forEach( el => { %>
+            <tr data-day="<%= el.day %>">
+              <td data-id='<%=el._id%>'><span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.name %></span></td>
+              <td><%= el.address %></td>
+              <td><%= el.phone %></td>
+              <td><span class="day-tag <%= el.day %>"><%= el.day %></span></td>
+              <td><a href="/clients/edit/<%= el._id %>" class="client-action-btn edit-btn">Edit</a></td>
+              <td><button type="button" class="client-action-btn delete-btn deleteClient" data-id="<%= el._id %>" data-name="<%= el.name %>">Delete</button></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </section>
   </div>
 </div>
 <%- include('partials/footer') -%>

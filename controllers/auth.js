@@ -1,5 +1,6 @@
 const passport = require("passport");
 const validator = require("validator");
+const Client = require("../models/Client");
 const User = require("../models/User");
 
 exports.getLogin = (req, res) => {
@@ -11,8 +12,14 @@ exports.getLogin = (req, res) => {
   });
 };
 
-exports.getProfile = (req, res) => {
-  res.render("profile", { user: req.user });
+exports.getProfile = async (req, res) => {
+  try {
+    const clients = await Client.find({ userId: req.user.id });
+    res.render("profile", { user: req.user, clients });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 };
 
 exports.postLogin = (req, res, next) => {

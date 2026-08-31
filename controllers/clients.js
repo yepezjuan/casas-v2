@@ -41,10 +41,6 @@ module.exports = {
         userId: req.user.id,
         day: "Saturday",
       });
-      const clientsLeft = await Client.countDocuments({
-        userId: req.user.id,
-        completed: false,
-      });
       const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
 
       let todayRoute = null;
@@ -73,7 +69,6 @@ module.exports = {
 
       res.render("dashboard.ejs", {
         clients,
-        left: clientsLeft,
         mondayClients,
         tuesdayClients,
         wednesdayClients,
@@ -93,7 +88,10 @@ module.exports = {
 
   getEdit: async (req, res) => {
     try {
-      const client = await Client.findOne({ _id: req.params.id, userId: req.user.id });
+      const client = await Client.findOne({
+        _id: req.params.id,
+        userId: req.user.id,
+      });
       res.render("edit.ejs", { client, user: req.user });
     } catch (err) {
       console.error(err);
