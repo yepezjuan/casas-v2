@@ -86,6 +86,22 @@ module.exports = {
     }
   },
 
+  getClient: async (req, res) => {
+    try {
+      const client = await Client.findOne({
+        _id: req.params.id,
+        userId: req.user.id,
+      });
+      if (!client) {
+        return res.status(404).send("Client not found");
+      }
+      res.render("client.ejs", { clientData: client, user: req.user });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server error");
+    }
+  },
+
   getEdit: async (req, res) => {
     try {
       const client = await Client.findOne({
@@ -156,10 +172,11 @@ module.exports = {
         { $pull: { clientIds: req.body.clientIdFromJSFile } },
       );
       console.log("Deleted Client");
-      res.json("Deleted it");
+      res.redirect("/profile");
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Could not delete client." });
+      req.flash("errors", { msg: "Could not delete client." });
+      res.redirect("/profile");
     }
   },
 

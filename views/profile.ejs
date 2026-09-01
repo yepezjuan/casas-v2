@@ -4,16 +4,17 @@
       <div class="card-body">
         <h3 class="card-title">
         Personal Info
-      </h3>
+        </h3>
           <div>
               <p><strong>User Name</strong>: <%= user.userName %></p>
               <p><strong>Email</strong>: <%= user.email %></p>
-              <a href="/logout" class="col-3 btn btn-primary">Logout</a>
+              
           </div>
 
-          <div class="justify-content-center mt-5">
+          <div class="d-flex justify-content-evenly mt-5">
           <a class="btn btn-primary" href="/dashboard">Return to dashboard</a>
-        </div>  
+          <a href="/logout" class="btn btn-secondary">Logout</a>
+          </div>  
           
       </div>
       
@@ -45,7 +46,7 @@
         <tbody>
         <% clients.forEach( el => { %>
           <tr>
-            <td data-id='<%=el._id%>'><span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.name %></span></td>
+            <td data-id='<%=el._id%>'><a href='/clients/<%= el._id %>'><%= el.name %></a></td>
             <td><%= el.address %></td>
             <td><span class="day-tag <%= el.day %>"><%= el.day %></span></td>
 

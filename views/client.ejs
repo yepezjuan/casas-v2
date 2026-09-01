@@ -1,0 +1,27 @@
+<%- include('partials/header') -%>
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <h2><%= clientData.name %></h2>
+      <div>
+        <p><%= clientData.phone %></p>
+        <p><%= clientData.address %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-evenly mt-5">
+    <a class="btn btn-primary" href="/profile">Profile</a>
+    <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+    <form action="/clients/deleteClient?_method=DELETE" method="POST">
+      <input
+        type="hidden"
+        name="clientIdFromJSFile"
+        value="<%= clientData._id %>"
+      />
+      <button type="submit" class="btn btn-danger">Delete Client</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') -%>
