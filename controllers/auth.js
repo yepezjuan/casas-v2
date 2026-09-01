@@ -12,10 +12,26 @@ exports.getLogin = (req, res) => {
   });
 };
 
+const DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 exports.getProfile = async (req, res) => {
   try {
-    const clients = await Client.find({ userId: req.user.id });
-    res.render("profile", { user: req.user, clients });
+    const selectedDay = DAYS.includes(req.query.day) ? req.query.day : "All";
+    const clientQuery = { userId: req.user.id };
+    if (selectedDay !== "All") {
+      clientQuery.day = selectedDay;
+    }
+
+    const clients = await Client.find(clientQuery);
+
+    res.render("profile", { user: req.user, clients, selectedDay });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");

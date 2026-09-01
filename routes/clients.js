@@ -5,6 +5,9 @@ const { ensureAuth } = require("../middleware/auth");
 
 router.get("/", ensureAuth, clientsController.getClients);
 
+// todo: ADD getCLient (singular client for /:id)
+router.get("/", ensureAuth, clientsController.getClient);
+
 router.get("/edit/:id", ensureAuth, clientsController.getEdit);
 
 router.get("/route/:day", ensureAuth, clientsController.getRoute);

@@ -2,13 +2,16 @@
 <div class="container">
   <div class="card mb-4">
       <div class="card-body">
+        <h3 class="card-title">
+        Personal Info
+      </h3>
           <div>
               <p><strong>User Name</strong>: <%= user.userName %></p>
               <p><strong>Email</strong>: <%= user.email %></p>
               <a href="/logout" class="col-3 btn btn-primary">Logout</a>
           </div>
 
-          <div class="row justify-content-center mt-5">
+          <div class="justify-content-center mt-5">
           <a class="btn btn-primary" href="/dashboard">Return to dashboard</a>
         </div>  
           
@@ -17,44 +20,41 @@
     </div>
 
     <%# ------- CLIENT LIST ------%>
-    <section class="card">
-        <h2 class="card-title"><%= user.userName%> HAS <%= clients.length%> Clients</h2>
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title">Total clients: <%= clients.length%></h2>
 
-        <div id="day-filter-tabs">
-          <button class="filter-tab active" data-day="All">All</button>
-          <button class="filter-tab" data-day="Monday">Mon</button>
-          <button class="filter-tab" data-day="Tuesday">Tue</button>
-          <button class="filter-tab" data-day="Wednesday">Wed</button>
-          <button class="filter-tab" data-day="Thursday">Thu</button>
-          <button class="filter-tab" data-day="Friday">Fri</button>
-          <button class="filter-tab" data-day="Saturday">Sat</button>
-        </div>
+      <div id="day-filter-tabs">
+        <a href="/profile" class="filter-tab <%= selectedDay === 'All' ? 'active' : '' %>">All</a>
+        <a href="/profile?day=Monday" class="filter-tab <%= selectedDay === 'Monday' ? 'active' : '' %>">M</a>
+        <a href="/profile?day=Tuesday" class="filter-tab <%= selectedDay === 'Tuesday' ? 'active' : '' %>">T</a>
+        <a href="/profile?day=Wednesday" class="filter-tab <%= selectedDay === 'Wednesday' ? 'active' : '' %>">W</a>
+        <a href="/profile?day=Thursday" class="filter-tab <%= selectedDay === 'Thursday' ? 'active' : '' %>">Th</a>
+        <a href="/profile?day=Friday" class="filter-tab <%= selectedDay === 'Friday' ? 'active' : '' %>">F</a>
+        <a href="/profile?day=Saturday" class="filter-tab <%= selectedDay === 'Saturday' ? 'active' : '' %>">S</a>
+      </div>
 
-        <table class="client-table" id="clients-list-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Day</th>
-              <th>Edit</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-          <% clients.forEach( el => { %>
-            <tr data-day="<%= el.day %>">
-              <td data-id='<%=el._id%>'><span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.name %></span></td>
-              <td><%= el.address %></td>
-              <td><%= el.phone %></td>
-              <td><span class="day-tag <%= el.day %>"><%= el.day %></span></td>
-              <td><a href="/clients/edit/<%= el._id %>" class="client-action-btn edit-btn">Edit</a></td>
-              <td><button type="button" class="client-action-btn delete-btn deleteClient" data-id="<%= el._id %>" data-name="<%= el.name %>">Delete</button></td>
-            </tr>
-          <% }) %>
-          </tbody>
-        </table>
-      </section>
+      <table class="client-table" id="clients-list-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Day</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% clients.forEach( el => { %>
+          <tr>
+            <td data-id='<%=el._id%>'><span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.name %></span></td>
+            <td><%= el.address %></td>
+            <td><span class="day-tag <%= el.day %>"><%= el.day %></span></td>
+
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    </div>
+    </div>
   </div>
 </div>
 <%- include('partials/footer') -%>

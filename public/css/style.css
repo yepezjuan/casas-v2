@@ -1,3 +1,34 @@
+.day-tag {
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  color: #4a4a4a;
+}
+
+.Monday {
+  background-color: #e6b8bb;
+}
+
+.Tuesday {
+  background-color: #eddca0;
+}
+
+.Wednesday {
+  background-color: #f0cca4;
+}
+
+.Thursday {
+  background-color: #a8d4d1;
+}
+
+.Friday {
+  background-color: #b7d4ac;
+}
+
+.Saturday {
+  background-color: #d3b8d6;
+}
+
 /* ===== Filter tabs ===== */
 #day-filter-tabs {
   display: flex;
@@ -13,6 +44,9 @@
   padding: 6px 14px;
   font-size: 14px;
   cursor: pointer;
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
 }
 
 .filter-tab.active {
@@ -70,4 +104,15 @@
   .client-action-btn {
     padding: 8px 14px;
   }
+}
+
+.list-section-title {
+  margin: 20px 0 8px;
+  font-size: 15px;
+  color: #4a4a4a;
+}
+
+.empty-row td {
+  color: #888;
+  font-style: italic;
 }
