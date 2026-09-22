@@ -1,10 +1,10 @@
 
 erDiagram
     USER ||--o{ CLIENT : owns
-    USER ||--o{ CLIENT_LIST : owns
+    USER ||--o{ WORK_DAY_LIST : owns
     USER ||--o{ SERVICE_VISIT : logs
     CLIENT ||--o{ SERVICE_VISIT : "is serviced in"
-    CLIENT }o--o{ CLIENT_LIST : "member of"
+    CLIENT }o--o{ WORK_DAY_LIST : "member of"
 
     USER {
         ObjectId _id PK
@@ -25,11 +25,12 @@ erDiagram
         Boolean completed "legacy/unused - drop once SERVICE_VISIT ships"
     }
 
-    CLIENT_LIST {
+    WORK_DAY_LIST {
         ObjectId _id PK
         String userId FK "recommend: ObjectId ref User, not String"
         String name
         Array clientIds "[ObjectId ref Client]"
+        Date date
     }
 
     SERVICE_VISIT {

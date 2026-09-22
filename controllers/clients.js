@@ -1,5 +1,5 @@
 const Client = require("../models/Client");
-const ClientList = require("../models/ClientList");
+const WorkDayList = require("../models/WorkDayList");
 const Geo = require("../utils/geocode");
 const Routing = require("../utils/routing");
 
@@ -167,7 +167,7 @@ module.exports = {
         _id: req.body.clientIdFromJSFile,
         userId: req.user.id,
       });
-      await ClientList.updateMany(
+      await WorkDayList.updateMany(
         { userId: req.user.id },
         { $pull: { clientIds: req.body.clientIdFromJSFile } },
       );

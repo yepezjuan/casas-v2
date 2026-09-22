@@ -1,5 +1,9 @@
 <%- include('partials/header') -%>
 
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@calendarjs/ce/dist/style.css"
+/>
 <main class="container">
   <section class="card">
     <div class="card-body">
@@ -52,6 +56,81 @@
       </form>
     </div>
   </section>
+
+  <section class="card">
+    <div class="card-body">
+      <h2 class="card-title">Calendar</h2>
+      <div id="workCalendar"></div>
+      <div id="workDay"></div>
+    </div>
+  </section>
+
+    <%# ------- selected workDayList ------%>
+
+  <section class="card">
+    <div class="card-body">
+      <h2 class="card-title">Work for the day:</h2>
+        <div>
+          <ul id="dayClients"></ul>
+        </div>
+       <div class="card-body">
+      <h2 class="card-title">add clients for Workday</h2>
+
+      <form action="/workDayList" method="POST" class="client-form">
+        <div class="form-field">
+          <label for="date">DATE: YYYY-MM-DD</label>
+          <input type="text" id="date" name="date" />
+        </div>
+
+        <div class="clientList">
+          <ul>
+           <% clients.forEach( el =>{ %>
+            <li>
+              <input 
+                type="checkbox" 
+                
+                id="client_<%= el._id %>" 
+                name="clientIds" 
+                value="<%= el._id %>" 
+              >
+             <label for="client_<%= el._id %>"><%= el.name %></label>
+            </li>
+         <% }) %>
+          </ul>
+        </div>
+
+        <input type="submit" value="Create workDayList" />
+      </form>
+    </div>
+        
+        
+      </div>
+    </div>
+  </section>
+
+  <%# ------- CREATE workDayList ------%>
+  <section class="card">
+    
+  </section>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@calendarjs/ce/dist/index.js"></script>
+
+<script>
+  const { Calendar } = calendarjs;
+
+  Calendar(document.getElementById("workCalendar"), {
+    type: "inline",
+    value: new Date(),
+    wheel: false,
+    onchange: function (self, value) {
+      console.log(value);
+      document.getElementById("workDay").innerHTML = value;
+      fetchClientsForDate(value);
+    },
+  });
+</script>
+<script src="js/main.js"></script>
 
 <%- include('partials/footer') -%>
