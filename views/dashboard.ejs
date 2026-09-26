@@ -1,10 +1,61 @@
 <%- include('partials/header') -%>
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/@calendarjs/ce/dist/style.css"
 />
 <main class="container">
+
+<%# ------- calendar UI ------%>
+  <section class="card">
+    <div class="card-body">
+      <h2 class="card-title">Calendar</h2>
+      <div id="workCalendar"></div>
+    </div>
+  </section>
+
+   <%# ------- selected workDayList ------%>
+
+  <section >
+    <div class=" hidden" id="showWorkDayClients">
+      <h2 >Work for the day:</h2>
+        <div>
+          <ul id="dayClients"></ul>
+        </div>
+    </div>
+    <div class="card-body hidden" id="showWorkDayForm">
+      <h2 class="card-title">add clients for Workday: </h2>
+      <form action="/workDayList" method="POST" class="client-form">
+        <div class="form-field">
+          <label for="date" id="form-date"></label>
+          <input type="hidden" id="date" name="date" />
+        </div>
+
+        <div class="clientList">
+          <ul>
+            <% clients.forEach( el =>{ %>
+              <li>
+                <input 
+                  type="checkbox" 
+                  
+                  id="client_<%= el._id %>" 
+                  name="clientIds" 
+                  value="<%= el._id %>" 
+                >
+                <label for="client_<%= el._id %>"><%= el.name %></label>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+
+        <input type="submit" value="Create workDayList" />
+      </form>
+    </div>
+        
+        
+    </div>
+  </section>
+  
   <section class="card">
     <div class="card-body">
       <h2 class="card-title">Add a Client</h2>
@@ -57,56 +108,9 @@
     </div>
   </section>
 
-  <section class="card">
-    <div class="card-body">
-      <h2 class="card-title">Calendar</h2>
-      <div id="workCalendar"></div>
-      <div id="workDay"></div>
-    </div>
-  </section>
+  
 
-    <%# ------- selected workDayList ------%>
-
-  <section class="card">
-    <div class="card-body">
-      <h2 class="card-title">Work for the day:</h2>
-        <div>
-          <ul id="dayClients"></ul>
-        </div>
-       <div class="card-body">
-      <h2 class="card-title">add clients for Workday</h2>
-
-      <form action="/workDayList" method="POST" class="client-form">
-        <div class="form-field">
-          <label for="date">DATE: YYYY-MM-DD</label>
-          <input type="text" id="date" name="date" />
-        </div>
-
-        <div class="clientList">
-          <ul>
-           <% clients.forEach( el =>{ %>
-            <li>
-              <input 
-                type="checkbox" 
-                
-                id="client_<%= el._id %>" 
-                name="clientIds" 
-                value="<%= el._id %>" 
-              >
-             <label for="client_<%= el._id %>"><%= el.name %></label>
-            </li>
-         <% }) %>
-          </ul>
-        </div>
-
-        <input type="submit" value="Create workDayList" />
-      </form>
-    </div>
-        
-        
-      </div>
-    </div>
-  </section>
+   
 
   <%# ------- CREATE workDayList ------%>
   <section class="card">
@@ -124,10 +128,10 @@
     type: "inline",
     value: new Date(),
     wheel: false,
+    footer: false,
     onchange: function (self, value) {
-      console.log(value);
-      document.getElementById("workDay").innerHTML = value;
       fetchClientsForDate(value);
+      document.getElementById("form-date").innerHTML = value
     },
   });
 </script>

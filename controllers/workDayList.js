@@ -1,5 +1,7 @@
 const workDayList = require("../models/WorkDayList");
 const Client = require("../models/Client");
+
+const serviceHistory = require("../utils/serviceHistory");
 const Routing = require("../utils/routing");
 
 module.exports = {
@@ -25,13 +27,17 @@ module.exports = {
   },
 
   createList: async (req, res) => {
-    const { clientIds, date } = req.body;
+    const { date } = req.body;
+    // a single checked box arrives as a string, none as undefined
+    const clientIds = [].concat(req.body.clientIds || []);
+
     try {
       await workDayList.create({
         userId: req.user.id,
         clientIds: clientIds,
         date: date,
       });
+      await serviceHistory.recordServiceHistory(clientIds, req.user.id, date);
       res.redirect("/dashboard");
     } catch (err) {
       console.log(err);

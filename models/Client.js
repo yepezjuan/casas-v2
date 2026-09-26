@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { required } = require("nodemon/lib/config");
 
 const ClientSchema = new mongoose.Schema({
   name: {
@@ -36,6 +35,10 @@ const ClientSchema = new mongoose.Schema({
   lng: {
     type: Number,
     required: true,
+  },
+  serviceHistory: {
+    type: [String], // "YYYY-MM-DD"
+    default: [],
   },
 });
 

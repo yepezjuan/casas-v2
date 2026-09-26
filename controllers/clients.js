@@ -2,6 +2,10 @@ const Client = require("../models/Client");
 const WorkDayList = require("../models/WorkDayList");
 const Geo = require("../utils/geocode");
 const Routing = require("../utils/routing");
+const {
+  recordServiceHistory,
+  readServiceHistory,
+} = require("../utils/serviceHistory");
 
 const VALID_DAYS = [
   "Monday",
@@ -95,7 +99,12 @@ module.exports = {
       if (!client) {
         return res.status(404).send("Client not found");
       }
-      res.render("client.ejs", { clientData: client, user: req.user });
+      const serviceHistory = readServiceHistory(client.serviceHistory);
+      res.render("client.ejs", {
+        clientData: client,
+        user: req.user,
+        serviceHistory,
+      });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server error");
