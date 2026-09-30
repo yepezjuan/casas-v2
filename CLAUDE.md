@@ -30,13 +30,12 @@ Standard Express MVC: `routes/` → `controllers/` → `models/`, with `middlewa
 - **Routing** (`utils/routing.js`): calls the Google Routes API (`routes.googleapis.com/directions/v2:computeRoutes`) directly via axios (not the same package as geocoding) to get an optimized waypoint order and durations from a fixed `DEPOT` origin, then builds a schedule (arrive/depart times per stop, assuming a fixed `SERVICE_MINUTES` dwell time) and a Google Maps multi-stop deep link.
 - **`docs/db-schema.mmd`**: the intended schema, including a not-yet-implemented `SERVICE_VISIT` model for tracking visit history. It flags two known issues in the current models worth knowing before touching them: `userId` is currently `String` on `Client`/`WorkDayList` but should be an `ObjectId` ref to `User`, and `Client.completed` is legacy/unused, slated for removal once `SERVICE_VISIT` ships.
 
-### Legacy code path (mid-removal)
+### Legacy code path (mostly removed)
 
-This repo was originally a "100Devs Social Network" (see `package.json` description) with image posts via Cloudinary/Multer. That feature is being stripped out in favor of the client-scheduling app above:
+This repo was originally a "100Devs Social Network" (see `package.json` description) with image posts via Cloudinary/Multer. That feature has largely been stripped out already, in favor of the client-scheduling app above:
 
-- `models/Post.js` has already been deleted, but `controllers/posts.js` and `routes/posts.js` still reference it and will throw if hit.
-- `routes/posts.js` is no longer mounted in `server.js` (only `main`, `dashboard`, and `clients` routers are), so the dead code is currently unreachable rather than broken in production — but it should be deleted rather than repaired.
-- `middleware/cloudinary.js` and `middleware/multer.js` exist only to support this legacy post-upload flow.
-- `views/feed.ejs`, `views/post.ejs`, and the posts-related parts of `views/profile.ejs` belong to the same legacy flow.
+- `models/Post.js`, `controllers/posts.js`, `routes/posts.js`, `middleware/cloudinary.js`, `middleware/multer.js`, and `views/post.ejs` have all been deleted. `server.js` mounts only `main`, `dashboard`, `clients`, and `workDayList` routers — no posts route exists to mount.
+- `views/feed.ejs` is the one leftover: it still renders a grid of `posts[i].image` linking to `/post/:id`, a route that no longer exists. It should be deleted.
+- `views/profile.ejs` has no remaining posts-related content — nothing to clean up there.
 
-When working in this area, prefer deleting the dead code over fixing it, unless the user asks to keep the social feed feature.
+When working in this area, prefer deleting `views/feed.ejs` over fixing it, unless the user asks to keep the social feed feature.

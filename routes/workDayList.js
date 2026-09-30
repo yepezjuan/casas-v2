@@ -5,5 +5,6 @@ const { ensureAuth } = require("../middleware/auth");
 
 router.get("/", ensureAuth, WorkDayListController.getListClients);
 router.post("/", ensureAuth, WorkDayListController.createList);
+router.get("/dates", ensureAuth, WorkDayListController.getScheduledDates);
 
 module.exports = router;

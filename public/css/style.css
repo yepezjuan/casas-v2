@@ -120,3 +120,8 @@
 .hidden {
   display: none;
 }
+
+/* ===== Calendar: dates with an existing workDayList ===== */
+#workCalendar .workday-marker {
+  box-shadow: inset 0 0 0 3px #4caf50; /* green ring */
+}

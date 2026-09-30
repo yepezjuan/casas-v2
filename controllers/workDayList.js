@@ -44,4 +44,28 @@ module.exports = {
       res.status(500).json({ error: "Could not create workday list." });
     }
   },
+
+  getScheduledDates: async (req, res) => {
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      return res.status(404).json({ error: "start and end required" });
+    }
+
+    try {
+      const lists = await workDayList.find(
+        {
+          userId: req.user.id,
+          date: { $gte: new Date(start), $lt: new Date(end) },
+        },
+        { date: 1, _id: 0 },
+      );
+
+      const dates = lists.map((l) => l.date.toISOString().slice(0, 10));
+      res.json({ dates });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: "Could not load scheduled dates." });
+    }
+  },
 };

@@ -22,4 +22,7 @@ const WorkDayListSchema = new mongoose.Schema({
   },
 });
 
+WorkDayListSchema.index({ userId: 1, date: 1 });
+// helps pull dates quicker
+
 module.exports = mongoose.model("WorkDayList", WorkDayListSchema);
