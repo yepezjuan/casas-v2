@@ -111,19 +111,6 @@ module.exports = {
     }
   },
 
-  getEdit: async (req, res) => {
-    try {
-      const client = await Client.findOne({
-        _id: req.params.id,
-        userId: req.user.id,
-      });
-      res.render("edit.ejs", { client, user: req.user });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server error");
-    }
-  },
-
   createClient: async (req, res) => {
     const { clientName, clientPhone, clientAddress, clientDay } = req.body;
     try {
@@ -163,7 +150,7 @@ module.exports = {
         },
       );
       console.log("Client has been updated!");
-      res.json("Updated it");
+      res.redirect(`/clients/${clientId}`);
     } catch (err) {
       console.error("Update failed:", err.message);
       res.status(500).json({ error: "Could not update client." });

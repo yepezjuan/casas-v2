@@ -8,8 +8,6 @@ router.get("/", ensureAuth, clientsController.getClients);
 // todo: ADD getCLient (singular client for /:id)
 router.get("/:id", ensureAuth, clientsController.getClient);
 
-router.get("/edit/:id", ensureAuth, clientsController.getEdit);
-
 router.get("/route/:day", ensureAuth, clientsController.getRoute);
 
 router.post("/createClient", ensureAuth, clientsController.createClient);

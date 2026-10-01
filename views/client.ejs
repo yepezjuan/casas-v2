@@ -1,6 +1,8 @@
 <%- include('partials/header') -%>
+
+<main>
 <div class="container">
-  <div class="card">
+  <div id="clientInfo" class="card">
     <div class="card-body">
       <h2><%= clientData.name %></h2>
       <div>
@@ -10,6 +12,21 @@
 
      
     </div>
+  </div>
+
+  <div id="editClient" class="card hidden">
+    <div class="card-body">
+      <form action="/clients/updateClient?_method=PUT" method="POST">
+        <h2>Edit client info</h2>
+        <input type="hidden" name="clientId" value="<%= clientData._id %>" />
+        <input type="text" placeholder="Name" class="form-control" name="clientName" required value="<%= clientData.name %>">
+        <input type="tel" placeholder="Phone" name="clientPhone"  class="form-control" required value="<%= clientData.phone %>">
+        <input type="text" placeholder="Address" name="clientAddress" class="form-control" required value="<%= clientData.address %>">
+        <button type="submit" class="btn btn-primary">Save</button>
+
+      </form>
+    </div>
+
   </div>
 
 
@@ -26,9 +43,15 @@
       <% } %>
     </div>
 
+
+    <div>
+      
+    </div>
      
     </div>
   </div>
+
+  
 
 
 
@@ -36,7 +59,7 @@
 
   <div class="d-flex justify-content-evenly mt-5">
     <a class="btn btn-primary" href="/profile">Profile</a>
-    <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+    <button id="editToggle" class="btn btn-secondary" type="button"> Edit</button>
     <form action="/clients/deleteClient?_method=DELETE" method="POST">
       <input
         type="hidden"
@@ -47,5 +70,21 @@
     </form>
   </div>
 </div>
+
+</main>
+
+<script>
+  const editToggle = document.getElementById("editToggle");
+  const editPanel = document.getElementById("editClient");
+const infoPanel = document.getElementById("clientInfo");
+
+  editToggle.addEventListener("click", () => {
+    const editing = editPanel.classList.contains("hidden");
+    editPanel.classList.toggle("hidden", !editing);
+    infoPanel.classList.toggle("hidden", editing);
+    editToggle.textContent = editing ? "Cancel" : "Edit";
+  });
+</script>
+
 
 <%- include('partials/footer') -%>
