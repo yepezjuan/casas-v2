@@ -14,15 +14,20 @@
     </div>
   </section>
 
-   <%# ------- selected workDayList ------%>
+
 
   <section >
+
+<%# ------- selected workDayList ------%>
+
     <div class=" hidden" id="showWorkDayClients">
       <h2 >Work for the day:</h2>
         <div>
           <ul id="dayClients"></ul>
         </div>
     </div>
+
+  <%# ------- create workDayList ------%>
     <div class="card-body hidden" id="showWorkDayForm">
       <h2 class="card-title">add clients for Workday: </h2>
       <form action="/workDayList" method="POST" class="client-form">
@@ -51,11 +56,10 @@
         <input type="submit" value="Create workDayList" />
       </form>
     </div>
-        
-        
-    </div>
   </section>
-  
+
+<%# ------- Add Client form ------%>
+
   <section class="card">
     <div class="card-body">
       <h2 class="card-title">Add a Client</h2>
