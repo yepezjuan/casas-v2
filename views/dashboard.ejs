@@ -23,37 +23,40 @@
     <div class=" hidden" id="showWorkDayClients">
       <h2 >Work for the day:</h2>
         <div>
-          <ul id="dayClients"></ul>
+                    <div id="dayClients" class="clientList"></div>
+
         </div>
+
     </div>
 
-  <%# ------- create workDayList ------%>
+    <div class="hidden" id="workDayActions">
+      <button id="editToggle" class="btn btn-secondary" type="button">Edit</button>
+    </div>
+
+<%# ------- create / edit workDayList ------%>
     <div class="card-body hidden" id="showWorkDayForm">
       <h2 class="card-title">add clients for Workday: </h2>
-      <form action="/workDayList" method="POST" class="client-form">
+      <form id="workDayForm" action="/workDayList" method="POST" class="client-form">
         <div class="form-field">
           <label for="date" id="form-date"></label>
           <input type="hidden" id="date" name="date" />
+          <input type="hidden" id="listId" name="listId" />
         </div>
 
-        <div class="clientList">
-          <ul>
-            <% clients.forEach( el =>{ %>
-              <li>
-                <input 
-                  type="checkbox" 
-                  
-                  id="client_<%= el._id %>" 
-                  name="clientIds" 
-                  value="<%= el._id %>" 
-                >
-                <label for="client_<%= el._id %>"><%= el.name %></label>
-              </li>
-            <% }) %>
-          </ul>
-        </div>
+        <%# .btn-check hides the input but keeps it focusable; the label is the full-width row %>
+<div class="clientList">
+  <% clients.forEach( el =>{ %>
+    <input type="checkbox" class="btn-check" id="client_<%= el._id %>"
+           name="clientIds" value="<%= el._id %>" autocomplete="off">
+    <label class="client-row" for="client_<%= el._id %>">
+      <span class="check" aria-hidden="true"></span>
+      <span class="client-row-name"><%= el.name %></span>
+    </label>
+  <% }) %>
+</div>
 
-        <input type="submit" value="Create workDayList" />
+
+        <input type="submit" id="workDayFormSubmit" value="Create workDayList" />
       </form>
     </div>
   </section>
@@ -112,14 +115,7 @@
     </div>
   </section>
 
-  
 
-   
-
-  <%# ------- CREATE workDayList ------%>
-  <section class="card">
-    
-  </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
@@ -167,10 +163,18 @@
         value: new Date(),
         wheel: false,
         footer: false,
-        onchange: function (self, value) {
-          fetchClientsForDate(value);
-          document.getElementById("form-date").innerHTML = value;
+                onchange: function (self, value) {
+          const pad = (n) => String(n).padStart(2, "0");
+          const iso =
+            value instanceof Date
+              ? `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
+              : String(value || "").slice(0, 10);
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
+          document.getElementById("form-date").textContent = iso;
+          fetchClientsForDate(iso);
         },
+
+
         
       });
 

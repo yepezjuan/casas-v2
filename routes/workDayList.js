@@ -7,4 +7,6 @@ router.get("/", ensureAuth, WorkDayListController.getListClients);
 router.post("/", ensureAuth, WorkDayListController.createList);
 router.get("/dates", ensureAuth, WorkDayListController.getScheduledDates);
 
+router.put("/", ensureAuth, WorkDayListController.updateList);
+
 module.exports = router;

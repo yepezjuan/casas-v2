@@ -125,3 +125,76 @@
 #workCalendar .workday-marker {
   box-shadow: inset 0 0 0 3px #4caf50; /* green ring */
 }
+
+/* ===== Work day client list ===== */
+.clientList {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden; /* keeps row tint inside the rounded corners */
+  background-color: #fff;
+}
+
+.clientList:empty {
+  display: none;
+}
+
+.client-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ededed;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.client-row:last-child {
+  border-bottom: none;
+}
+.client-row:active {
+  background-color: #f0f0f0;
+}
+
+.check {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #b5b5b5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-check:checked + .client-row {
+  background-color: #eef5ff;
+}
+.btn-check:checked + .client-row .check {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+.btn-check:checked + .client-row .check::after {
+  content: "";
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.btn-check:focus-visible + .client-row {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
+.chevron {
+  margin-left: auto;
+  color: #999;
+  font-size: 20px;
+}

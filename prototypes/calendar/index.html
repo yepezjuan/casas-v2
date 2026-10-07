@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>CasasCalendar Test Bench</title>
+    <link rel="stylesheet" href="calendar.css" />
+    <style>
+      /* ---- Test-bench chrome only. None of this ships to CASAS. ---- */
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --fg: #1f2328;
+        --fg-soft: #6b7280;
+        --line: #e4e6e9;
+        --accent: #0d6efd;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0e1116;
+          --card: #15181d;
+          --fg: #e8eaed;
+          --fg-soft: #9aa3ae;
+          --line: #2a2f37;
+          --accent: #4c8dff;
+        }
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #0e1116;
+        --card: #15181d;
+        --fg: #e8eaed;
+        --fg-soft: #9aa3ae;
+        --line: #2a2f37;
+        --accent: #4c8dff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 16px 16px 48px;
+        background: var(--bg);
+        color: var(--fg);
+        font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      main {
+        max-width: 480px;
+        margin-inline: auto;
+      }
+
+      h1 {
+        margin: 4px 0 2px;
+        font-size: 1.125rem;
+      }
+
+      .sub {
+        margin: 0 0 16px;
+        font-size: 0.8125rem;
+        color: var(--fg-soft);
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        margin-bottom: 14px;
+      }
+
+      .card > h2 {
+        margin: 2px 0 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--fg-soft);
+      }
+
+      /* The calendar card lets the component own its own border. */
+      .card.bare {
+        background: transparent;
+        border: 0;
+        padding: 0;
+      }
+
+      .selected-date {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0 0 10px;
+      }
+
+      .selected-date strong {
+        font-size: 1rem;
+      }
+
+      .pill {
+        flex: 0 0 auto;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        background: #e8f3ec;
+        color: #157347;
+      }
+
+      .pill.empty {
+        background: #f0f1f3;
+        color: var(--fg-soft);
+      }
+
+      /* ---- Rows copied from public/css/style.css so the feel matches ---- */
+      .clientList {
+        display: flex;
+        flex-direction: column;
+        margin: 10px 0;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--card);
+      }
+
+      .clientList:empty {
+        display: none;
+      }
+
+      .client-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 56px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        cursor: pointer;
+        color: inherit;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .client-row:last-child {
+        border-bottom: none;
+      }
+
+      .client-row:active {
+        background: rgba(125, 125, 125, 0.12);
+      }
+
+      .client-row-sub {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--fg-soft);
+      }
+
+      .check {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border: 2px solid #b5b5b5;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-check {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .btn-check:checked + .client-row {
+        background: rgba(13, 110, 253, 0.08);
+      }
+
+      .btn-check:checked + .client-row .check {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .btn-check:checked + .client-row .check::after {
+        content: "";
+        width: 6px;
+        height: 11px;
+        border: solid #fff;
+        border-width: 0 2px 2px 0;
+        transform: translateY(-1px) rotate(45deg);
+      }
+
+      .btn-check:focus-visible + .client-row {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+
+      .chevron {
+        margin-left: auto;
+        color: var(--fg-soft);
+        font-size: 20px;
+      }
+
+      .btn {
+        appearance: none;
+        width: 100%;
+        min-height: 46px;
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--card);
+        color: var(--fg);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      .btn:active {
+        opacity: 0.75;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .muted {
+        margin: 6px 0;
+        font-size: 0.875rem;
+        color: var(--fg-soft);
+      }
+
+      .skeleton {
+        height: 56px;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--line), transparent, var(--line));
+        background-size: 200% 100%;
+        animation: shimmer 1.1s linear infinite;
+      }
+
+      @keyframes shimmer {
+        to {
+          background-position: -200% 0;
+        }
+      }
+
+      /* ---- Option switches ---- */
+      .opts {
+        display: grid;
+        gap: 2px;
+      }
+
+      .opt {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 44px;
+        font-size: 0.875rem;
+        cursor: pointer;
+      }
+
+      .opt input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--accent);
+      }
+
+      .opt select {
+        font: inherit;
+        font-size: 0.875rem;
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--fg);
+      }
+
+      .log {
+        margin: 0;
+        padding: 10px;
+        max-height: 150px;
+        overflow: auto;
+        border-radius: 10px;
+        background: rgba(125, 125, 125, 0.1);
+        font: 0.75rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--fg-soft);
+        white-space: pre-wrap;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>CasasCalendar</h1>
+      <p class="sub">
+        Standalone test bench. Mock data only — no server, no Google APIs. Open it on your phone
+        and work the real flow: tap a day, edit a list, save it, watch the dot appear.
+      </p>
+
+      <section class="card bare">
+        <div id="workCalendar"></div>
+      </section>
+
+      <!-- Mirrors the dashboard panel that reacts to the selected date -->
+      <section class="card" id="panel">
+        <h2>Work for the day</h2>
+        <p class="selected-date">
+          <strong id="panelDate">—</strong>
+          <span class="pill empty" id="panelPill">no list</span>
+        </p>
+
+        <div id="panelLoading" class="hidden">
+          <div class="skeleton"></div>
+        </div>
+
+        <div id="panelView" class="hidden">
+          <div class="clientList" id="dayClients"></div>
+          <div class="btn-row">
+            <button class="btn" type="button" id="editToggle">Edit</button>
+          </div>
+        </div>
+
+        <div id="panelForm" class="hidden">
+          <p class="muted" id="formHint">Pick the clients you'll visit.</p>
+          <div class="clientList" id="formClients"></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="button" id="saveBtn">Create workDayList</button>
+          </div>
+          <div class="btn-row hidden" id="deleteRow">
+            <button class="btn" type="button" id="deleteBtn">Delete this day's list</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Try the options</h2>
+        <div class="opts">
+          <label class="opt">Week starts on
+            <select id="optWeekStart">
+              <option value="1" selected>Monday</option>
+              <option value="0">Sunday</option>
+            </select>
+          </label>
+          <label class="opt">Show client count instead of a dot
+            <input type="checkbox" id="optCount" />
+          </label>
+          <label class="opt">Disable Sundays
+            <input type="checkbox" id="optNoSunday" checked />
+          </label>
+          <label class="opt">Limit to this month onward (min date)
+            <input type="checkbox" id="optMin" />
+          </label>
+          <label class="opt">Dark mode
+            <input type="checkbox" id="optDark" />
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Event log</h2>
+        <pre class="log" id="log"></pre>
+      </section>
+    </main>
+
+    <script src="calendar.js"></script>
+    <script>
+      (function () {
+        "use strict";
+
+        var iso = CasasCalendar.toISO;
+        var log = document.getElementById("log");
+
+        function say(msg) {
+          log.textContent = new Date().toLocaleTimeString() + "  " + msg + "\n" + log.textContent;
+        }
+
+        /* ---------------------------------------------------------------
+         * Fake data + a fake API, shaped like the real CASAS endpoints.
+         * ------------------------------------------------------------- */
+        var CLIENTS = [
+          { _id: "c1", name: "Panadería La Rosa", day: "Monday", address: "412 Elm St" },
+          { _id: "c2", name: "Taquería El Sol", day: "Monday", address: "88 Market Ave" },
+          { _id: "c3", name: "Corner Deli", day: "Tuesday", address: "19 Oak Blvd" },
+          { _id: "c4", name: "Hillside Market", day: "Tuesday", address: "230 Hill Rd" },
+          { _id: "c5", name: "Riverside Cafe", day: "Wednesday", address: "7 River Way" },
+          { _id: "c6", name: "Mercado Central", day: "Wednesday", address: "551 Center St" },
+          { _id: "c7", name: "Northgate Grocery", day: "Thursday", address: "900 North Pkwy" },
+          { _id: "c8", name: "Pizzeria Vesuvio", day: "Thursday", address: "64 Pine St" },
+          { _id: "c9", name: "Westside Bodega", day: "Friday", address: "15 West Ln" },
+          { _id: "c10", name: "Sunrise Bakery", day: "Friday", address: "77 Sunrise Dr" },
+          { _id: "c11", name: "Lakeside Diner", day: "Saturday", address: "3 Lake Shore" },
+          { _id: "c12", name: "Cafe Ventana", day: "Saturday", address: "121 Vista St" },
+        ];
+
+        var DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        var clientsByDay = function (name) {
+          return CLIENTS.filter(function (c) {
+            return c.day === name;
+          });
+        };
+
+        // store: iso -> { listId, clientIds }
+        var store = {};
+        (function seed() {
+          var now = new Date();
+          for (var offset = -40; offset <= 40; offset++) {
+            var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+            if (d.getDay() === 0) continue;
+            if (d.getDate() % 3 !== 0) continue;
+            var pool = clientsByDay(DOW[d.getDay()]);
+            if (!pool.length) continue;
+            store[iso(d)] = {
+              listId: "list_" + iso(d),
+              clientIds: pool
+                .concat(CLIENTS.slice(0, (d.getDate() % 4) + 1))
+                .filter(function (c, i, arr) {
+                  return arr.indexOf(c) === i;
+                })
+                .map(function (c) {
+                  return c._id;
+                }),
+            };
+          }
+        })();
+
+        var wait = function (ms) {
+          return new Promise(function (r) {
+            setTimeout(r, ms);
+          });
+        };
+
+        var api = {
+          // GET /workDayList/dates?start=&end=
+          dates: async function (start, end) {
+            await wait(120);
+            var out = {};
+            Object.keys(store).forEach(function (k) {
+              if (k >= start && k <= end) out[k] = store[k].clientIds.length;
+            });
+            return out;
+          },
+          // GET /workDayList?date=
+          workDay: async function (date) {
+            await wait(160);
+            var row = store[date];
+            if (!row) return null;
+            return {
+              listId: row.listId,
+              clients: row.clientIds.map(function (id) {
+                return CLIENTS.find(function (c) {
+                  return c._id === id;
+                });
+              }),
+            };
+          },
+          // POST /workDayList  or  PUT /workDayList
+          save: async function (date, clientIds) {
+            await wait(200);
+            if (!clientIds.length) {
+              delete store[date];
+              return null;
+            }
+            store[date] = { listId: store[date] ? store[date].listId : "list_" + date, clientIds: clientIds };
+            return store[date];
+          },
+          remove: async function (date) {
+            await wait(160);
+            delete store[date];
+          },
+        };
+
+        /* ---------------------------------------------------------------
+         * The calendar
+         * ------------------------------------------------------------- */
+        var cal = CasasCalendar("#workCalendar", {
+          value: new Date(),
+          weekStartsOn: 1,
+          disabledDaysOfWeek: [0],
+          legend: "Has a work day",
+          onChange: function (isoDate) {
+            say("onChange -> " + isoDate);
+            loadDay(isoDate);
+          },
+          onMonthChange: function (range) {
+            say("onMonthChange -> " + range.rangeStart + " .. " + range.rangeEnd);
+            api.dates(range.rangeStart, range.rangeEnd).then(function (marks) {
+              cal.setMarkedDates(marks);
+            });
+          },
+        });
+
+        /* ---------------------------------------------------------------
+         * The day panel — same states as the dashboard
+         * ------------------------------------------------------------- */
+        var el = {
+          date: document.getElementById("panelDate"),
+          pill: document.getElementById("panelPill"),
+          loading: document.getElementById("panelLoading"),
+          view: document.getElementById("panelView"),
+          form: document.getElementById("panelForm"),
+          dayClients: document.getElementById("dayClients"),
+          formClients: document.getElementById("formClients"),
+          editToggle: document.getElementById("editToggle"),
+          saveBtn: document.getElementById("saveBtn"),
+          deleteRow: document.getElementById("deleteRow"),
+          deleteBtn: document.getElementById("deleteBtn"),
+          formHint: document.getElementById("formHint"),
+        };
+
+        var current = { date: null, listId: null, token: 0 };
+
+        var pretty = function (isoDate) {
+          return CasasCalendar.fromISO(isoDate).toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          });
+        };
+
+        function show(which) {
+          el.loading.classList.toggle("hidden", which !== "loading");
+          el.view.classList.toggle("hidden", which !== "view");
+          el.form.classList.toggle("hidden", which !== "form");
+        }
+
+        function renderDayList(clients) {
+          el.dayClients.innerHTML = "";
+          clients.forEach(function (c) {
+            var a = document.createElement("a");
+            a.href = "#";
+            a.className = "client-row";
+            a.innerHTML =
+              '<span><span class="client-row-name">' +
+              c.name +
+              '</span><span class="client-row-sub">' +
+              c.address +
+              "</span></span>" +
+              '<span class="chevron" aria-hidden="true">›</span>';
+            el.dayClients.appendChild(a);
+          });
+        }
+
+        function renderForm(checkedIds) {
+          el.formClients.innerHTML = "";
+          CLIENTS.forEach(function (c) {
+            var input = document.createElement("input");
+            input.type = "checkbox";
+            input.className = "btn-check";
+            input.id = "f_" + c._id;
+            input.value = c._id;
+            input.checked = checkedIds.indexOf(c._id) !== -1;
+
+            var label = document.createElement("label");
+            label.className = "client-row";
+            label.setAttribute("for", input.id);
+            label.innerHTML =
+              '<span class="check" aria-hidden="true"></span>' +
+              '<span><span class="client-row-name">' +
+              c.name +
+              '</span><span class="client-row-sub">' +
+              c.day +
+              "</span></span>";
+
+            el.formClients.append(input, label);
+          });
+        }
+
+        async function loadDay(isoDate) {
+          var token = ++current.token;
+          current.date = isoDate;
+          current.listId = null;
+          el.date.textContent = pretty(isoDate);
+          show("loading");
+
+          var data = await api.workDay(isoDate);
+          if (token !== current.token) return;
+
+          if (!data) {
+            el.pill.textContent = "no list";
+            el.pill.className = "pill empty";
+            el.formHint.textContent = "No list for this day yet. Pick the clients you'll visit.";
+            el.saveBtn.textContent = "Create workDayList";
+            el.deleteRow.classList.add("hidden");
+            renderForm(
+              clientsByDay(DOW[CasasCalendar.fromISO(isoDate).getDay()]).map(function (c) {
+                return c._id;
+              })
+            );
+            show("form");
+            return;
+          }
+
+          current.listId = data.listId;
+          el.pill.textContent = data.clients.length + " clients";
+          el.pill.className = "pill";
+          el.formHint.textContent = "Editing an existing list.";
+          el.saveBtn.textContent = "Save changes";
+          el.deleteRow.classList.remove("hidden");
+          renderDayList(data.clients);
+          renderForm(
+            data.clients.map(function (c) {
+              return c._id;
+            })
+          );
+          el.editToggle.textContent = "Edit";
+          show("view");
+        }
+
+        el.editToggle.addEventListener("click", function () {
+          show("form");
+        });
+
+        el.saveBtn.addEventListener("click", async function () {
+          var ids = Array.prototype.map.call(
+            el.formClients.querySelectorAll(".btn-check:checked"),
+            function (b) {
+              return b.value;
+            }
+          );
+          var date = current.date;
+          el.saveBtn.disabled = true;
+          var row = await api.save(date, ids);
+          el.saveBtn.disabled = false;
+          say((current.listId ? "PUT" : "POST") + " /workDayList " + date + " -> " + ids.length + " clients");
+          if (row) cal.markDate(date, row.clientIds.length);
+          else cal.unmarkDate(date);
+          loadDay(date);
+        });
+
+        el.deleteBtn.addEventListener("click", async function () {
+          var date = current.date;
+          await api.remove(date);
+          say("DELETE /workDayList " + date);
+          cal.unmarkDate(date);
+          loadDay(date);
+        });
+
+        /* ---------------------------------------------------------------
+         * Option switches
+         * ------------------------------------------------------------- */
+        document.getElementById("optWeekStart").addEventListener("change", function (e) {
+          cal.setOption("weekStartsOn", +e.target.value);
+        });
+
+        document.getElementById("optCount").addEventListener("change", function (e) {
+          cal.setOption("showCount", e.target.checked);
+        });
+
+        document.getElementById("optNoSunday").addEventListener("change", function (e) {
+          cal.setOption("disabledDaysOfWeek", e.target.checked ? [0] : []);
+        });
+
+        document.getElementById("optMin").addEventListener("change", function (e) {
+          var now = new Date();
+          cal.setOption("min", e.target.checked ? new Date(now.getFullYear(), now.getMonth(), 1) : null);
+        });
+
+        document.getElementById("optDark").addEventListener("change", function (e) {
+          document.documentElement.dataset.theme = e.target.checked ? "dark" : "light";
+        });
+
+        // The calendar starts on today with a value but fires no onChange, so
+        // the panel is primed by hand — same as the real dashboard would.
+        loadDay(cal.getValue());
+      })();
+    </script>
+  </body>
+</html>

@@ -22,7 +22,10 @@ const WorkDayListSchema = new mongoose.Schema({
   },
 });
 
-WorkDayListSchema.index({ userId: 1, date: 1 });
-// helps pull dates quicker
+// one list per user per day. unique is what makes the upsert in
+// controllers/workDayList.js atomic: without it two racing submits can both
+// insert, leaving an unreachable orphan behind findOne. also helps pull dates
+// quicker.
+WorkDayListSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model("WorkDayList", WorkDayListSchema);
