@@ -12,9 +12,9 @@ const OBJECT_ID = /^[0-9a-f]{24}$/i;
 // dropping duplicates. foreign, deleted and malformed ids are silently left out
 // so a stale form (client deleted on another device) still saves what it can
 async function ownedClientIds(rawIds, userId) {
-  const ids = [
-    ...new Set([].concat(rawIds || []).map(String)),
-  ].filter((id) => OBJECT_ID.test(id));
+  const ids = [...new Set([].concat(rawIds || []).map(String))].filter((id) =>
+    OBJECT_ID.test(id),
+  );
   if (ids.length == 0) return [];
 
   const owned = await Client.find({ _id: { $in: ids }, userId }).distinct(
@@ -23,6 +23,33 @@ async function ownedClientIds(rawIds, userId) {
   const ownedSet = new Set(owned.map(String));
 
   return ids.filter((id) => ownedSet.has(id));
+}
+
+// what the dashboard needs to draw a list: its clients in the list's own order
+// ($in returns them in storage order) plus the saved route, if it has one
+async function listPayload(list, user) {
+  const docs = await Client.find({
+    userId: user.id,
+    _id: { $in: list.clientIds },
+  });
+  const byId = new Map(docs.map((c) => [String(c._id), c]));
+  const clients = list.clientIds
+    .map((id) => byId.get(String(id)))
+    .filter(Boolean);
+
+  // mongoose hydrates a nested path as {} even when unset, so test a field
+  const saved = list.route && list.route.optimizedAt ? list.route : null;
+  const route = saved
+    ? {
+        miles: (saved.distanceMeters / 1609.344).toFixed(1),
+        minutes: Math.round(saved.durationSeconds / 60),
+        // rebuilt on read so it follows the user's current starting point
+        deepLink: Routing.buildDeepLink(Routing.resolveOrigin(user), clients),
+      }
+    : null;
+
+  // why does this have a name when lists dont have a name
+  return { name: list.name, listId: list._id, clients, route };
 }
 
 module.exports = {
@@ -43,11 +70,7 @@ module.exports = {
       if (!list) {
         return res.status(404).json({ error: "List not found." });
       }
-      const clients = await Client.find({
-        userId: req.user.id,
-        _id: { $in: list.clientIds },
-      });
-      res.json({ name: list.name, listId: list._id, clients });
+      res.json(await listPayload(list, req.user));
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Could not load list." });
@@ -120,8 +143,15 @@ module.exports = {
         return res.redirect("/dashboard");
       }
 
-      list.clientIds = nextIds;
-      await list.save();
+      // an untouched save keeps the optimized order; any real change to the
+      // clients makes the saved route stale
+      const changed =
+        removedIds.length > 0 || nextIds.length !== prevIds.length;
+      if (changed) {
+        list.clientIds = nextIds;
+        list.route = undefined;
+        await list.save();
+      }
 
       await serviceHistory.clearServiceHistory(
         removedIds,
@@ -134,6 +164,59 @@ module.exports = {
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: "Could not update workday list." });
+    }
+  },
+
+  optimizeList: async (req, res) => {
+    const { listId } = req.body;
+    if (typeof listId !== "string" || !OBJECT_ID.test(listId)) {
+      return res.status(400).json({ error: "listId required." });
+    }
+
+    try {
+      const list = await workDayList.findOne({
+        _id: listId,
+        userId: req.user.id,
+      });
+      if (!list) {
+        return res.status(404).json({ error: "List not found." });
+      }
+      if (list.clientIds.length < 2) {
+        return res
+          .status(400)
+          .json({ error: "A route needs at least 2 clients." });
+      }
+
+      let result;
+      try {
+        result = await Routing.getRouteForClientIds(
+          list.clientIds,
+          req.user.id,
+          Routing.resolveOrigin(req.user),
+        );
+      } catch (err) {
+        console.error("Route optimization failed:", err.message);
+        // err.status marks a problem with the list itself, whose message is
+        // safe to show; anything else is Google or the network
+        return err.status
+          ? res.status(err.status).json({ error: err.message })
+          : res.status(502).json({
+              error: "Could not reach the routing service. Try again.",
+            });
+      }
+
+      list.clientIds = result.orderedClients.map((c) => c.id);
+      list.route = {
+        distanceMeters: result.totalDistanceMeters,
+        durationSeconds: result.totalDurationSeconds,
+        optimizedAt: new Date(),
+      };
+      await list.save();
+
+      res.json(await listPayload(list, req.user));
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Could not optimize route." });
     }
   },
 

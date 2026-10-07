@@ -20,6 +20,13 @@ const WorkDayListSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  // set by the optimizer. while present, clientIds is in optimized visit order;
+  // cleared whenever the list's clients or their addresses change
+  route: {
+    distanceMeters: Number,
+    durationSeconds: Number,
+    optimizedAt: Date,
+  },
 });
 
 // one list per user per day. unique is what makes the upsert in

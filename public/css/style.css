@@ -198,3 +198,61 @@
   color: #999;
   font-size: 20px;
 }
+
+/* ===== Work day route ===== */
+.stop-number {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: #fff;
+  font-size: 13px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.route-summary {
+  margin: 12px 0;
+}
+
+.route-totals {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.route-note {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.route-note:empty {
+  display: none;
+}
+
+/* full-width, thumb-sized buttons for use in the field */
+.workday-actions,
+.route-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workday-actions.hidden,
+.route-summary.hidden {
+  display: none;
+}
+
+.workday-actions .btn,
+.route-summary .btn {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workday-actions .btn.hidden,
+.route-summary .btn.hidden {
+  display: none;
+}

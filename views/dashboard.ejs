@@ -27,10 +27,18 @@
 
         </div>
 
+        <div class="route-summary hidden" id="routeSummary">
+          <p id="routeTotals" class="route-totals"></p>
+          <a id="routeLink" class="btn btn-success hidden" target="_blank" rel="noopener">Open in Google Maps</a>
+          <p id="routeLinkNote" class="route-note hidden">Too many stops for a single Google Maps link.</p>
+        </div>
+
     </div>
 
-    <div class="hidden" id="workDayActions">
+    <div class="workday-actions hidden" id="workDayActions">
+      <button id="optimizeRoute" class="btn btn-primary hidden" type="button">Optimize route</button>
       <button id="editToggle" class="btn btn-secondary" type="button">Edit</button>
+      <p id="routeStatus" class="route-note" role="status"></p>
     </div>
 
 <%# ------- create / edit workDayList ------%>

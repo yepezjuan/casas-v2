@@ -4,6 +4,24 @@ const Client = require("../models/Client");
 const ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 const DEPOT = { lat: 34.1161821, lng: -118.0145946 };
 const SERVICE_MINUTES = 40;
+// Routes API rejects more than 25 intermediates
+const MAX_STOPS = 25;
+// Google Maps URLs drop waypoints past 9
+const MAX_LINK_STOPS = 9;
+
+// bad input rather than a Google failure, so the controller can answer 400
+function inputError(message) {
+  const err = new Error(message);
+  err.status = 400;
+  return err;
+}
+
+// the one place that decides where a user's route starts and ends. everyone
+// shares DEPOT for now; once users can save a starting address on their
+// profile, read its coordinates off `user` here and fall back to DEPOT
+function resolveOrigin(user) {
+  return DEPOT;
+}
 
 const waypoint = (p) => ({
   location: { latLng: { latitude: p.lat, longitude: p.lng } },
@@ -13,6 +31,7 @@ const waypoint = (p) => ({
 const secs = (d) => parseInt(d, 10);
 
 function buildDeepLink(depot, orderedClients) {
+  if (orderedClients.length > MAX_LINK_STOPS) return null;
   const coord = (p) => `${p.lat},${p.lng}`;
   const params = new URLSearchParams({
     api: "1",
@@ -94,6 +113,7 @@ async function makeRoute(clients, depot) {
   };
 }
 
+// this might be legacy code since not using workDay ANYMORE
 async function getRouteForDay(day, userId) {
   const docs = await Client.find({ userId, day });
 
@@ -108,18 +128,33 @@ async function getRouteForDay(day, userId) {
   return makeRoute(clients, DEPOT);
 }
 
-async function getRouteForClientIds(clientIds, userId) {
+async function getRouteForClientIds(clientIds, userId, origin = DEPOT) {
   const docs = await Client.find({ userId, _id: { $in: clientIds } });
 
-  if (!docs.length) throw new Error("This list has no clients.");
-
-  const clients = docs.map((c) => ({ name: c.name, lat: c.lat, lng: c.lng }));
-
-  if (clients.some((c) => c.lat == null || c.lng == null)) {
-    throw new Error("One or more clients are missing geocoded coordinates.");
+  if (!docs.length) throw inputError("This list has no clients.");
+  if (docs.length > MAX_STOPS) {
+    throw inputError(`A route can have at most ${MAX_STOPS} stops.`);
   }
 
-  return makeRoute(clients, DEPOT);
+  // id rides along so the caller can save the optimized order
+  const clients = docs.map((c) => ({
+    id: c._id,
+    name: c.name,
+    lat: c.lat,
+    lng: c.lng,
+  }));
+
+  if (clients.some((c) => c.lat == null || c.lng == null)) {
+    throw inputError("One or more clients are missing geocoded coordinates.");
+  }
+
+  return makeRoute(clients, origin);
 }
 
-module.exports = { makeRoute, getRouteForDay, getRouteForClientIds };
+module.exports = {
+  makeRoute,
+  getRouteForDay,
+  getRouteForClientIds,
+  resolveOrigin,
+  buildDeepLink,
+};

@@ -149,6 +149,11 @@ module.exports = {
           lng,
         },
       );
+      // the address may have moved, so saved routes through it are stale
+      await WorkDayList.updateMany(
+        { userId: req.user.id, clientIds: clientId },
+        { $unset: { route: 1 } },
+      );
       console.log("Client has been updated!");
       res.redirect(`/clients/${clientId}`);
     } catch (err) {
@@ -164,8 +169,12 @@ module.exports = {
         userId: req.user.id,
       });
       await WorkDayList.updateMany(
-        { userId: req.user.id },
-        { $pull: { clientIds: req.body.clientIdFromJSFile } },
+        { userId: req.user.id, clientIds: req.body.clientIdFromJSFile },
+        // a saved route no longer matches a list that lost a stop
+        {
+          $pull: { clientIds: req.body.clientIdFromJSFile },
+          $unset: { route: 1 },
+        },
       );
       console.log("Deleted Client");
       res.redirect("/profile");
