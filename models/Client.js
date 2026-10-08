@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+// stored value -> label shown in forms and lists
+const FREQUENCIES = {
+  weekly: "Weekly",
+  biweekly: "Bi-weekly",
+  monthly: "Monthly",
+};
+
 const ClientSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -23,8 +30,17 @@ const ClientSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // legacy: the weekday a client used to be pinned to. no longer read or
+  // written, kept only so existing clients don't lose it
   day: {
     type: String,
+  },
+  // how often the client is visited. a string rather than a day count because
+  // "monthly" isn't a fixed number of days
+  frequency: {
+    type: String,
+    enum: Object.keys(FREQUENCIES),
+    default: "weekly",
     required: true,
   },
 
@@ -42,4 +58,7 @@ const ClientSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Client", ClientSchema);
+const Client = mongoose.model("Client", ClientSchema);
+Client.FREQUENCIES = FREQUENCIES;
+
+module.exports = Client;

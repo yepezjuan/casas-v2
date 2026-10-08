@@ -106,15 +106,12 @@
           <label for="clientAddress">Address</label>
         </div>
         <div class="form-floating mb-3">
-          <select class="form-select" id="clientDay" name="clientDay">
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
+          <select class="form-select" id="clientFrequency" name="clientFrequency">
+            <% Object.entries(frequencies).forEach(([value, label]) => { %>
+              <option value="<%= value %>"><%= label %></option>
+            <% }) %>
           </select>
-          <label for="clientDay">Day</label>
+          <label for="clientFrequency">Frequency</label>
         </div>
         <button type="submit" class="btn btn-primary mb-3" value="Add Client">
           Submit

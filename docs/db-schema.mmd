@@ -21,7 +21,8 @@ erDiagram
         String address
         Number lat
         Number lng
-        String day "enum: Monday..Saturday"
+        String frequency "enum: weekly, biweekly, monthly (default weekly)"
+        String day "legacy/unused - weekday kept on older clients only"
         Boolean completed "legacy/unused - drop once SERVICE_VISIT ships"
     }
 

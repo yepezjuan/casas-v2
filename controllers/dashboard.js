@@ -5,7 +5,11 @@ module.exports = {
   getDashboard: async (req, res) => {
     try {
       const clients = await Client.find({ userId: req.user.id });
-      res.render("dashboard.ejs", { clients, user: req.user });
+      res.render("dashboard.ejs", {
+        clients,
+        user: req.user,
+        frequencies: Client.FREQUENCIES,
+      });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server error");

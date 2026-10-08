@@ -1,95 +1,9 @@
 const Client = require("../models/Client");
 const WorkDayList = require("../models/WorkDayList");
 const Geo = require("../utils/geocode");
-const Routing = require("../utils/routing");
-const {
-  recordServiceHistory,
-  readServiceHistory,
-} = require("../utils/serviceHistory");
-
-const VALID_DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const { readServiceHistory } = require("../utils/serviceHistory");
 
 module.exports = {
-  getClients: async (req, res) => {
-    console.log(req.user);
-    try {
-      const clients = await Client.find({ userId: req.user.id });
-      const mondayClients = await Client.find({
-        userId: req.user.id,
-        day: "Monday",
-      });
-      const tuesdayClients = await Client.find({
-        userId: req.user.id,
-        day: "Tuesday",
-      });
-      const wednesdayClients = await Client.find({
-        userId: req.user.id,
-        day: "Wednesday",
-      });
-      const thursdayClients = await Client.find({
-        userId: req.user.id,
-        day: "Thursday",
-      });
-      const fridayClients = await Client.find({
-        userId: req.user.id,
-        day: "Friday",
-      });
-      const saturdayClients = await Client.find({
-        userId: req.user.id,
-        day: "Saturday",
-      });
-      const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
-
-      let todayRoute = null;
-      if (VALID_DAYS.includes(today)) {
-        try {
-          const result = await Routing.getRouteForDay(today, req.user.id);
-          const clock = (d) =>
-            new Date(d).toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            });
-          todayRoute = {
-            schedule: result.schedule.map((s) => ({
-              name: s.name,
-              arrive: clock(s.arrive),
-              depart: clock(s.depart),
-            })),
-            miles: (result.totalDistanceMeters / 1609.344).toFixed(1),
-            minutes: Math.round(result.totalDurationSeconds / 60),
-            deepLink: result.deepLink,
-          };
-        } catch (err) {
-          todayRoute = { error: err.message };
-        }
-      }
-
-      res.render("dashboard.ejs", {
-        clients,
-        mondayClients,
-        tuesdayClients,
-        wednesdayClients,
-        thursdayClients,
-        fridayClients,
-        saturdayClients,
-        today,
-        validDays: VALID_DAYS,
-        todayRoute,
-        user: req.user,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server error");
-    }
-  },
-
   getClient: async (req, res) => {
     try {
       const client = await Client.findOne({
@@ -104,6 +18,7 @@ module.exports = {
         clientData: client,
         user: req.user,
         serviceHistory,
+        frequencies: Client.FREQUENCIES,
       });
     } catch (err) {
       console.error(err);
@@ -112,7 +27,8 @@ module.exports = {
   },
 
   createClient: async (req, res) => {
-    const { clientName, clientPhone, clientAddress, clientDay } = req.body;
+    const { clientName, clientPhone, clientAddress, clientFrequency } =
+      req.body;
     try {
       const { lat, lng } = await Geo.geocodeAddress(clientAddress);
       await Client.create({
@@ -121,21 +37,26 @@ module.exports = {
         address: clientAddress,
         completed: false,
         userId: req.user.id,
-        day: clientDay,
+        frequency: clientFrequency,
         lat,
         lng,
       });
       console.log("new client has been added!");
-      res.redirect("/clients");
+      res.redirect("/dashboard");
     } catch (err) {
-      console.error("Geocoding failed:", err.message);
-      res.redirect("/clients");
+      console.error("Create client failed:", err.message);
+      res.redirect("/dashboard");
     }
   },
 
   updateClient: async (req, res) => {
-    const { clientId, clientName, clientPhone, clientAddress, clientDay } =
-      req.body;
+    const {
+      clientId,
+      clientName,
+      clientPhone,
+      clientAddress,
+      clientFrequency,
+    } = req.body;
     try {
       const { lat, lng } = await Geo.geocodeAddress(clientAddress);
       await Client.findOneAndUpdate(
@@ -144,10 +65,13 @@ module.exports = {
           name: clientName,
           phone: clientPhone,
           address: clientAddress,
-          day: clientDay,
+          frequency: clientFrequency,
           lat,
           lng,
         },
+        // updates skip schema validation by default, which would let any
+        // posted frequency through
+        { runValidators: true },
       );
       // the address may have moved, so saved routes through it are stale
       await WorkDayList.updateMany(
@@ -182,19 +106,6 @@ module.exports = {
       console.error(err);
       req.flash("errors", { msg: "Could not delete client." });
       res.redirect("/profile");
-    }
-  },
-
-  getRoute: async (req, res) => {
-    const { day } = req.params;
-    if (!VALID_DAYS.includes(day)) {
-      return res.status(400).json({ error: "Invalid day." });
-    }
-    try {
-      const result = await Routing.getRouteForDay(day, req.user.id);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
     }
   },
 };

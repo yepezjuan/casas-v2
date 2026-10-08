@@ -3,56 +3,7 @@
   padding: 2px 8px;
   display: inline-block;
   color: #4a4a4a;
-}
-
-.Monday {
-  background-color: #e6b8bb;
-}
-
-.Tuesday {
-  background-color: #eddca0;
-}
-
-.Wednesday {
-  background-color: #f0cca4;
-}
-
-.Thursday {
-  background-color: #a8d4d1;
-}
-
-.Friday {
-  background-color: #b7d4ac;
-}
-
-.Saturday {
-  background-color: #d3b8d6;
-}
-
-/* ===== Filter tabs ===== */
-#day-filter-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 12px 0;
-}
-
-.filter-tab {
-  border: 1px solid #ccc;
   background-color: #f2f2f2;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  display: inline-block;
-  text-decoration: none;
-  color: inherit;
-}
-
-.filter-tab.active {
-  background-color: #333;
-  color: #fff;
-  border-color: #333;
 }
 
 /* ===== Table ===== */

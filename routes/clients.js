@@ -3,12 +3,7 @@ const router = express.Router();
 const clientsController = require("../controllers/clients");
 const { ensureAuth } = require("../middleware/auth");
 
-router.get("/", ensureAuth, clientsController.getClients);
-
-// todo: ADD getCLient (singular client for /:id)
 router.get("/:id", ensureAuth, clientsController.getClient);
-
-router.get("/route/:day", ensureAuth, clientsController.getRoute);
 
 router.post("/createClient", ensureAuth, clientsController.createClient);
 

@@ -113,21 +113,6 @@ async function makeRoute(clients, depot) {
   };
 }
 
-// this might be legacy code since not using workDay ANYMORE
-async function getRouteForDay(day, userId) {
-  const docs = await Client.find({ userId, day });
-
-  if (!docs.length) throw new Error(`No clients scheduled for ${day}.`);
-
-  const clients = docs.map((c) => ({ name: c.name, lat: c.lat, lng: c.lng }));
-
-  if (clients.some((c) => c.lat == null || c.lng == null)) {
-    throw new Error("One or more clients are missing geocoded coordinates.");
-  }
-
-  return makeRoute(clients, DEPOT);
-}
-
 async function getRouteForClientIds(clientIds, userId, origin = DEPOT) {
   const docs = await Client.find({ userId, _id: { $in: clientIds } });
 
@@ -153,7 +138,6 @@ async function getRouteForClientIds(clientIds, userId, origin = DEPOT) {
 
 module.exports = {
   makeRoute,
-  getRouteForDay,
   getRouteForClientIds,
   resolveOrigin,
   buildDeepLink,

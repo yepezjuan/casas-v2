@@ -25,22 +25,12 @@
     <div class="card-body">
       <h2 class="card-title">Total clients: <%= clients.length%></h2>
 
-      <div id="day-filter-tabs">
-        <a href="/profile" class="filter-tab <%= selectedDay === 'All' ? 'active' : '' %>">All</a>
-        <a href="/profile?day=Monday" class="filter-tab <%= selectedDay === 'Monday' ? 'active' : '' %>">M</a>
-        <a href="/profile?day=Tuesday" class="filter-tab <%= selectedDay === 'Tuesday' ? 'active' : '' %>">T</a>
-        <a href="/profile?day=Wednesday" class="filter-tab <%= selectedDay === 'Wednesday' ? 'active' : '' %>">W</a>
-        <a href="/profile?day=Thursday" class="filter-tab <%= selectedDay === 'Thursday' ? 'active' : '' %>">Th</a>
-        <a href="/profile?day=Friday" class="filter-tab <%= selectedDay === 'Friday' ? 'active' : '' %>">F</a>
-        <a href="/profile?day=Saturday" class="filter-tab <%= selectedDay === 'Saturday' ? 'active' : '' %>">S</a>
-      </div>
-
       <table class="client-table" id="clients-list-table">
         <thead>
           <tr>
             <th>Name</th>
             <th>Address</th>
-            <th>Day</th>
+            <th>Frequency</th>
           </tr>
         </thead>
         <tbody>
@@ -48,7 +38,7 @@
           <tr>
             <td data-id='<%=el._id%>'><a href='/clients/<%= el._id %>'><%= el.name %></a></td>
             <td><%= el.address %></td>
-            <td><span class="day-tag <%= el.day %>"><%= el.day %></span></td>
+            <td><span class="day-tag"><%= frequencies[el.frequency] %></span></td>
 
           </tr>
         <% }) %>
