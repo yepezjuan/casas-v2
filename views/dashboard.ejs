@@ -1,18 +1,14 @@
 <%- include('partials/header') -%>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/@calendarjs/ce/dist/style.css"
-/>
+<%# NOTE: replaces the @calendarjs/ce stylesheet and the Material Icons font it
+    needed for its arrows. The calendar is now our own component. %>
+<link rel="stylesheet" href="/css/calendar.css" />
 <main class="container">
 
 <%# ------- calendar UI ------%>
-  <section class="card">
-    <div class="card-body">
-      <h2 class="card-title">Calendar</h2>
+<%# NOTE: same #workCalendar mount point as before; CasasCalendar fills it in
+    from the init script at the bottom of this file. %>
       <div id="workCalendar"></div>
-    </div>
-  </section>
+
 
 
 
@@ -123,76 +119,53 @@
 
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@calendarjs/ce/dist/index.js"></script>
+<%# NOTE: main.js used to load after the calendar script. It now loads first,
+    because the init below calls its fetchClientsForDate straight away to show
+    today's list. %>
+<script src="/js/main.js"></script>
 
+<%# NOTE: replaces the lemonadejs + @calendarjs/ce CDN scripts. %>
+<script src="/js/calendar.js"></script>
+
+<%# NOTE: replaces the old inline block (Calendar(...) init, markScheduledDays
+    and the MutationObserver). Marked days are an option of the new calendar,
+    so nothing reads the month back out of the DOM any more. %>
 <script>
-  const { Calendar } = calendarjs;
-  const today = new Date();
-  const yearStart = `${today.getFullYear() - 1}-01-01`;
-  const yearEnd = `${today.getFullYear() + 1}-01-01`;
-  let scheduledDates = new Set();
+  const formDate = document.getElementById("form-date");
+  // fast swipes: ignore a late answer for a month the user already left
+  let marksToken = 0;
 
-
-
-  function markScheduledDays(calendarEl) {
-    const monthLabel = calendarEl.querySelector('[data-view="months"]');
-    const yearLabel = calendarEl.querySelector('[data-view="years"]');
-    if (!monthLabel || !yearLabel) return;
-
-    const monthIndex = new Date(`${monthLabel.textContent} 1, 2000`).getMonth();
-    const year = parseInt(yearLabel.textContent, 10);
-
-    calendarEl.querySelectorAll(".lm-calendar-content > div").forEach((cell) => {
-      if (cell.dataset.grey === "true") {
-        cell.classList.remove("workday-marker");
-        return;
-      }
-      const day = parseInt(cell.textContent, 10);
-      if (!day) return;
-      const iso = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      cell.classList.toggle("workday-marker", scheduledDates.has(iso));
-    });
+  // same two steps the old onchange did: label the form, load the day's list
+  function selectDate(iso) {
+    formDate.textContent = iso;
+    fetchClientsForDate(iso);
   }
 
-  fetch(`/workDayList/dates?start=${yearStart}&end=${yearEnd}`)
-    .then((res) => (res.ok ? res.json() : { dates: [] }))
-    .catch(() => ({ dates: [] }))
-    .then(({ dates }) => {
-      scheduledDates = new Set(dates || []);
+  const cal = CasasCalendar("#workCalendar", {
+    value: new Date(),
+    onChange: selectDate,
+    // NOTE: was one fetch of a 3-year window up front; now only the 6 weeks
+    // on screen are fetched, each time the month changes
+    onMonthChange: ({ rangeStart, rangeEnd }) => {
+      const token = ++marksToken;
+      // /workDayList/dates treats `end` as exclusive, rangeEnd is the last
+      // day shown, so ask for one day past it
+      const last = CasasCalendar.fromISO(rangeEnd);
+      const end = CasasCalendar.toISO(
+        new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1),
+      );
+      fetch(`/workDayList/dates?start=${rangeStart}&end=${end}`)
+        .then((res) => (res.ok ? res.json() : { dates: [] }))
+        .catch(() => ({ dates: [] }))
+        .then(({ dates }) => {
+          if (token === marksToken) cal.setMarkedDates(dates || []);
+        });
+    },
+  });
 
-      const calendarEl = document.getElementById("workCalendar");
-
-      Calendar(calendarEl, {
-        type: "inline",
-        value: new Date(),
-        wheel: false,
-        footer: false,
-                onchange: function (self, value) {
-          const pad = (n) => String(n).padStart(2, "0");
-          const iso =
-            value instanceof Date
-              ? `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
-              : String(value || "").slice(0, 10);
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
-          document.getElementById("form-date").textContent = iso;
-          fetchClientsForDate(iso);
-        },
-
-
-        
-      });
-
-      markScheduledDays(calendarEl); 
-      // initial render happens synchronously inside Calendar(...)
-
-      const calendarObserver = new MutationObserver( () => markScheduledDays(calendarEl))
-      calendarObserver.observe(calendarEl, {childList: true, subtree:true,
-      characterData:true
-      })
-    });
+  // NOTE: new behaviour. No onChange fires for the initial value, so today's
+  // list is loaded by hand when the dashboard opens.
+  selectDate(cal.getValue());
 </script>
-
-<script src="js/main.js"></script>
 
 <%- include('partials/footer') -%>

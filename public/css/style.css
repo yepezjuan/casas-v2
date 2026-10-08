@@ -72,10 +72,9 @@
   display: none;
 }
 
-/* ===== Calendar: dates with an existing workDayList ===== */
-#workCalendar .workday-marker {
-  box-shadow: inset 0 0 0 3px #4caf50; /* green ring */
-}
+/* NOTE: the #workCalendar .workday-marker ring that lived here is gone. Days
+   with a workDayList are now drawn by the calendar itself (.cal-dot in
+   css/calendar.css). */
 
 /* ===== Work day client list ===== */
 .clientList {
