@@ -2,7 +2,6 @@ const axios = require("axios");
 const Client = require("../models/Client");
 
 const ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
-const DEPOT = { lat: 34.1161821, lng: -118.0145946 };
 const SERVICE_MINUTES = 40;
 // Routes API rejects more than 25 intermediates
 const MAX_STOPS = 25;
@@ -16,11 +15,11 @@ function inputError(message) {
   return err;
 }
 
-// the one place that decides where a user's route starts and ends. everyone
-// shares DEPOT for now; once users can save a starting address on their
-// profile, read its coordinates off `user` here and fall back to DEPOT
+// the one place that decides where a user's route starts and ends: the
+// starting address saved on their account, or null if they have not set one
 function resolveOrigin(user) {
-  return DEPOT;
+  if (user.startLat == null || user.startLng == null) return null;
+  return { lat: user.startLat, lng: user.startLng };
 }
 
 const waypoint = (p) => ({
@@ -31,7 +30,7 @@ const waypoint = (p) => ({
 const secs = (d) => parseInt(d, 10);
 
 function buildDeepLink(depot, orderedClients) {
-  if (orderedClients.length > MAX_LINK_STOPS) return null;
+  if (!depot || orderedClients.length > MAX_LINK_STOPS) return null;
   const coord = (p) => `${p.lat},${p.lng}`;
   const params = new URLSearchParams({
     api: "1",
@@ -113,7 +112,13 @@ async function makeRoute(clients, depot) {
   };
 }
 
-async function getRouteForClientIds(clientIds, userId, origin = DEPOT) {
+async function getRouteForClientIds(clientIds, userId, origin) {
+  if (!origin) {
+    throw inputError(
+      "Set a starting address on your profile before optimizing.",
+    );
+  }
+
   const docs = await Client.find({ userId, _id: { $in: clientIds } });
 
   if (!docs.length) throw inputError("This list has no clients.");

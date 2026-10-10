@@ -13,11 +13,14 @@ async function geocodeAddress(address) {
   const results = response.data.results;
 
   if (!results || results.length === 0) {
-    throw new Error(`No geocoding results found for: ${address}`);
+    // the address stays out of the message: callers log it
+    const err = new Error("No geocoding results found.");
+    err.code = "NO_RESULTS";
+    throw err;
   }
 
   const { lat, lng } = results[0].geometry.location;
-  return { lat, lng };
+  return { lat, lng, formattedAddress: results[0].formatted_address };
 }
 
 module.exports = { geocodeAddress };

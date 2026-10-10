@@ -1,7 +1,7 @@
 <%- include('partials/header') -%>
     <main class="container">
         <div class="row justify-content-center">
-            <section class="col-6 mt-5">
+            <section class="col-12 col-md-6 mt-5">
                 <% if (locals.messages.errors) { %>
                     <% messages.errors.forEach( el => { %>
                         <div class="alert alert-danger"><%= el.msg %></div>
@@ -30,7 +30,12 @@
                         <label for="confirmPassword" class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
                       </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="mb-3">
+                        <label for="startAddress" class="form-label">Starting address</label>
+                        <input type="text" class="form-control" id="startAddress" name="startAddress" aria-describedby="startAddressHelp" autocomplete="street-address" required minlength="5" maxlength="200">
+                        <div id="startAddressHelp" class="form-text">Where your routes start and end. It doesn't have to be your home; a nearby intersection works. It is sent to Google Maps to calculate directions.</div>
+                      </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit</button>
                   </form>
             </section>
         </div>

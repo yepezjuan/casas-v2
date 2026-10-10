@@ -37,14 +37,18 @@ async function listPayload(list, user) {
     .map((id) => byId.get(String(id)))
     .filter(Boolean);
 
-  // mongoose hydrates a nested path as {} even when unset, so test a field
-  const saved = list.route && list.route.optimizedAt ? list.route : null;
+  // mongoose hydrates a nested path as {} even when unset, so test a field.
+  // without a starting address a saved route has nowhere to start: it dates
+  // from the shared depot, so it is treated as not optimized
+  const origin = Routing.resolveOrigin(user);
+  const saved =
+    origin && list.route && list.route.optimizedAt ? list.route : null;
   const route = saved
     ? {
         miles: (saved.distanceMeters / 1609.344).toFixed(1),
         minutes: Math.round(saved.durationSeconds / 60),
         // rebuilt on read so it follows the user's current starting point
-        deepLink: Routing.buildDeepLink(Routing.resolveOrigin(user), clients),
+        deepLink: Routing.buildDeepLink(origin, clients),
       }
     : null;
 

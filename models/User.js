@@ -5,6 +5,22 @@ const UserSchema = new mongoose.Schema({
   userName: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,
+  // where this user's routes start and end, as Google matched it. often a home
+  // address, so it is never logged and never sent in a JSON response
+  startAddress: { type: String, trim: true, maxlength: 200 },
+  startLat: Number,
+  startLng: Number,
+});
+
+// a user document serialized by accident must not carry these
+UserSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    delete ret.password;
+    delete ret.startAddress;
+    delete ret.startLat;
+    delete ret.startLng;
+    return ret;
+  },
 });
 
 // Password hash middleware.

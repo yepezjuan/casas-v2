@@ -1,5 +1,15 @@
 <%- include('partials/header') -%>
 <div class="container">
+  <% if (locals.messages.errors) { %>
+    <% messages.errors.forEach( el => { %>
+      <div class="alert alert-danger"><%= el.msg %></div>
+    <% }) %>
+  <% } %>
+  <% if (locals.messages.success) { %>
+    <% messages.success.forEach( el => { %>
+      <div class="alert alert-success"><%= el.msg %></div>
+    <% }) %>
+  <% } %>
   <div class="card mb-4">
       <div class="card-body">
         <h3 class="card-title">
@@ -8,8 +18,23 @@
           <div>
               <p><strong>User Name</strong>: <%= user.userName %></p>
               <p><strong>Email</strong>: <%= user.email %></p>
-              
+
           </div>
+
+          <%# ------- STARTING ADDRESS ------%>
+          <form action="/profile/startAddress?_method=PUT" method="POST">
+            <label for="startAddress" class="form-label"><strong>Starting address</strong></label>
+            <input type="text" class="form-control" id="startAddress" name="startAddress" aria-describedby="startAddressHelp" autocomplete="street-address" required minlength="5" maxlength="200" value="<%= user.startAddress || '' %>">
+            <div id="startAddressHelp" class="form-text">
+              <% if (!user.startAddress) { %>Not set, so routes can't be optimized yet. <% } %>Where your routes start and end. It doesn't have to be your home; a nearby intersection works. It is sent to Google Maps to calculate directions.
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Save starting address</button>
+          </form>
+          <% if (user.startAddress) { %>
+            <form action="/profile/startAddress?_method=DELETE" method="POST">
+              <button type="submit" class="btn btn-outline-danger w-100 mt-2">Remove starting address</button>
+            </form>
+          <% } %>
 
           <div class="d-flex justify-content-evenly mt-5">
           <a class="btn btn-primary" href="/dashboard">Return to dashboard</a>
@@ -30,7 +55,7 @@
           <tr>
             <th>Name</th>
             <th>Address</th>
-            <th>Frequency</th>
+            <th>Last serviced</th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +63,7 @@
           <tr>
             <td data-id='<%=el._id%>'><a href='/clients/<%= el._id %>'><%= el.name %></a></td>
             <td><%= el.address %></td>
-            <td><span class="day-tag"><%= frequencies[el.frequency] %></span></td>
+            <td><%= lastServiced[el._id] || "No recent visits" %></td>
 
           </tr>
         <% }) %>
