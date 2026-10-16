@@ -17,6 +17,12 @@ function readStartAddress(body) {
   return address.length >= 5 && address.length <= 200 ? address : null;
 }
 
+// a posted text field, or "" if it is missing or not a string. validator
+// throws on anything but a string, and a form can post an array or object
+function readString(value) {
+  return typeof value === "string" ? value : "";
+}
+
 // logs a failed lookup and returns the message to show. the address itself is
 // deliberately not logged
 function startAddressLookupError(err) {
@@ -62,19 +68,24 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.postLogin = (req, res, next) => {
+  const email = readString(req.body.email);
+  const password = readString(req.body.password);
+
   const validationErrors = [];
-  if (!validator.isEmail(req.body.email))
+  if (!validator.isEmail(email))
     validationErrors.push({ msg: "Please enter a valid email address." });
-  if (validator.isEmpty(req.body.password))
+  if (validator.isEmpty(password))
     validationErrors.push({ msg: "Password cannot be blank." });
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
     return res.redirect("/login");
   }
-  req.body.email = validator.normalizeEmail(req.body.email, {
+  // passport-local reads these back off req.body
+  req.body.email = validator.normalizeEmail(email, {
     gmail_remove_dots: false,
   });
+  req.body.password = password;
 
   passport.authenticate("local", (err, user, info) => {
     if (err) {
@@ -119,14 +130,23 @@ exports.getSignup = (req, res) => {
 
 exports.postSignup = async (req, res, next) => {
   try {
+    // a string userName also keeps userName[$ne]=x out of the query below
+    const userName = readString(req.body.userName).trim();
+    const password = readString(req.body.password);
+    const confirmPassword = readString(req.body.confirmPassword);
+
     const validationErrors = [];
-    if (!validator.isEmail(req.body.email))
+    if (!validator.isLength(userName, { min: 1, max: 50 }))
+      validationErrors.push({
+        msg: "Please enter a username (up to 50 characters).",
+      });
+    if (!validator.isEmail(readString(req.body.email)))
       validationErrors.push({ msg: "Please enter a valid email address." });
-    if (!validator.isLength(req.body.password, { min: 8 }))
+    if (!validator.isLength(password, { min: 8 }))
       validationErrors.push({
         msg: "Password must be at least 8 characters long",
       });
-    if (req.body.password !== req.body.confirmPassword)
+    if (password !== confirmPassword)
       validationErrors.push({ msg: "Passwords do not match" });
     const startAddress = readStartAddress(req.body);
     if (!startAddress) validationErrors.push({ msg: START_ADDRESS_INVALID });
@@ -135,12 +155,12 @@ exports.postSignup = async (req, res, next) => {
       req.flash("errors", validationErrors);
       return res.redirect("../signup");
     }
-    req.body.email = validator.normalizeEmail(req.body.email, {
+    const email = validator.normalizeEmail(req.body.email, {
       gmail_remove_dots: false,
     });
 
     const existingUser = await User.findOne({
-      $or: [{ email: req.body.email }, { userName: req.body.userName }],
+      $or: [{ email }, { userName }],
     });
     if (existingUser) {
       req.flash("errors", {
@@ -159,9 +179,9 @@ exports.postSignup = async (req, res, next) => {
     }
 
     const user = new User({
-      userName: req.body.userName,
-      email: req.body.email,
-      password: req.body.password,
+      userName,
+      email,
+      password,
       startAddress: start.formattedAddress,
       startLat: start.lat,
       startLng: start.lng,

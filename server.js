@@ -61,6 +61,17 @@ app.use("/dashboard", dashboard);
 app.use("/clients", clients);
 app.use("/workDayList", workDayList);
 
+// Last resort for anything a route did not handle. The stack goes to the server
+// log only, never to the page. req.body is not logged: it can hold a password
+// or a home address
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status || err.statusCode;
+  const code = status >= 400 && status < 500 ? status : 500;
+  if (code === 500) console.error(err);
+  res.status(code).render("error", { code });
+});
+
 //Server Running
 app.listen(process.env.PORT, () => {
   console.log("Server is running, you better catch it!");

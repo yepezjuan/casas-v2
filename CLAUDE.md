@@ -20,6 +20,7 @@ CASAS — a route-planning tool for people who visit multiple clients per day fo
 - `DB_STRING` — MongoDB connection URI
 - `MAPS_API_KEY` — Google Maps/Routes API key (used by both geocoding and routing)
 - `SESSION_SECRET` — signs the session cookie (`server.js`)
+- `NODE_ENV` — set to `production` on the host (not needed locally)
 
 ## Architecture
 

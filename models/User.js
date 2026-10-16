@@ -2,9 +2,15 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  userName: { type: String, unique: true },
-  email: { type: String, unique: true },
-  password: String,
+  userName: {
+    type: String,
+    unique: true,
+    required: true,
+    trim: true,
+    maxlength: 50,
+  },
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
   // where this user's routes start and end, as Google matched it. often a home
   // address, so it is never logged and never sent in a JSON response
   startAddress: { type: String, trim: true, maxlength: 200 },
