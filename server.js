@@ -38,12 +38,27 @@ app.use(logger("dev"));
 //Use forms for put / delete
 app.use(methodOverride("_method"));
 
+// the host's HTTPS proxy sits in front of the app. without this, req.secure is
+// false, so secure cookies are never set, and every visitor shares the proxy's
+// IP for rate limiting
+app.set("trust proxy", 1);
+
 // Setup Sessions - stored in MongoDB
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      // local dev runs on plain http
+      secure: process.env.NODE_ENV === "production",
+      // not sent on cross-site POSTs, so another site can't submit forms here
+      // on a logged-in user's behalf
+      sameSite: "lax",
+      // matches connect-mongo's 14-day session expiry
+      maxAge: 1000 * 60 * 60 * 24 * 14,
+    },
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
   }),
 );

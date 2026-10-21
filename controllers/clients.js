@@ -2,6 +2,7 @@ const Client = require("../models/Client");
 const WorkDayList = require("../models/WorkDayList");
 const Geo = require("../utils/geocode");
 const { readServiceHistory } = require("../utils/serviceHistory");
+const { isObjectId } = require("../utils/objectId");
 
 module.exports = {
   getClient: async (req, res) => {
@@ -57,6 +58,9 @@ module.exports = {
       clientAddress,
       clientFrequency,
     } = req.body;
+    if (!isObjectId(clientId)) {
+      return res.status(400).json({ error: "clientId required." });
+    }
     try {
       const { lat, lng } = await Geo.geocodeAddress(clientAddress);
       await Client.findOneAndUpdate(
@@ -87,16 +91,23 @@ module.exports = {
   },
 
   deleteClient: async (req, res) => {
+    const clientId = req.body.clientIdFromJSFile;
+    // an operator here would delete a client and $pull it from every list,
+    // emptying them all
+    if (!isObjectId(clientId)) {
+      req.flash("errors", { msg: "Could not delete client." });
+      return res.redirect("/profile");
+    }
     try {
       await Client.findOneAndDelete({
-        _id: req.body.clientIdFromJSFile,
+        _id: clientId,
         userId: req.user.id,
       });
       await WorkDayList.updateMany(
-        { userId: req.user.id, clientIds: req.body.clientIdFromJSFile },
+        { userId: req.user.id, clientIds: clientId },
         // a saved route no longer matches a list that lost a stop
         {
-          $pull: { clientIds: req.body.clientIdFromJSFile },
+          $pull: { clientIds: clientId },
           $unset: { route: 1 },
         },
       );

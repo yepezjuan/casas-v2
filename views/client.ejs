@@ -67,7 +67,7 @@
   <div class="d-flex justify-content-evenly mt-5">
     <a class="btn btn-primary" href="/profile">Profile</a>
     <button id="editToggle" class="btn btn-secondary" type="button"> Edit</button>
-    <form action="/clients/deleteClient?_method=DELETE" method="POST">
+    <form action="/clients/deleteClient?_method=DELETE" method="POST" onsubmit="return confirm('Delete this client? This also removes them from every work day list and erases their visit history.')">
       <input
         type="hidden"
         name="clientIdFromJSFile"

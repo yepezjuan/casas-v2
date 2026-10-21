@@ -5,6 +5,7 @@ const homeController = require("../controllers/home");
 const { ensureAuth, ensureGuest } = require("../middleware/auth");
 const {
   signupLimiter,
+  loginLimiter,
   startAddressLimiter,
 } = require("../middleware/rateLimit");
 
@@ -23,7 +24,7 @@ router.delete(
   authController.deleteStartAddress,
 );
 router.get("/login", authController.getLogin);
-router.post("/login", authController.postLogin);
+router.post("/login", loginLimiter, authController.postLogin);
 router.get("/logout", authController.logout);
 router.get("/signup", authController.getSignup);
 router.post("/signup", signupLimiter, authController.postSignup);

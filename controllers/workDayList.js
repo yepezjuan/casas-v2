@@ -3,10 +3,7 @@ const Client = require("../models/Client");
 
 const serviceHistory = require("../utils/serviceHistory");
 const Routing = require("../utils/routing");
-
-// mongoose 5's isValidObjectId accepts any 12-char string, which would still
-// throw a CastError inside $in, so check the hex form directly
-const OBJECT_ID = /^[0-9a-f]{24}$/i;
+const { OBJECT_ID, isObjectId } = require("../utils/objectId");
 
 // narrows posted ids to clients this user owns, keeping submit order and
 // dropping duplicates. foreign, deleted and malformed ids are silently left out
@@ -117,7 +114,7 @@ module.exports = {
 
   updateList: async (req, res) => {
     const { listId } = req.body;
-    if (!listId) {
+    if (!isObjectId(listId)) {
       return res.status(400).json({ error: "listId required." });
     }
 
@@ -173,7 +170,7 @@ module.exports = {
 
   optimizeList: async (req, res) => {
     const { listId } = req.body;
-    if (typeof listId !== "string" || !OBJECT_ID.test(listId)) {
+    if (!isObjectId(listId)) {
       return res.status(400).json({ error: "listId required." });
     }
 

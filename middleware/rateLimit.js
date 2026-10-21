@@ -15,6 +15,21 @@ const signupLimiter = rateLimit({
   },
 });
 
+// caps password guessing. counted per IP like signup, so it also needs
+// `trust proxy`
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    req.flash("errors", {
+      msg: "Too many login attempts. Try again in 15 minutes.",
+    });
+    res.status(429).render("login", { title: "Login" });
+  },
+});
+
 // each change is one Geocoding request. mount after ensureAuth
 const startAddressLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -30,4 +45,4 @@ const startAddressLimiter = rateLimit({
   },
 });
 
-module.exports = { signupLimiter, startAddressLimiter };
+module.exports = { signupLimiter, loginLimiter, startAddressLimiter };
