@@ -8,16 +8,21 @@
  */
 
 .cal {
-  --cal-accent: #0d6efd;
+  /* reads the app palette from style.css :root; fallbacks keep it standalone */
+  --cal-accent: var(--primary-500, #2f8f5b);
   --cal-accent-fg: #ffffff;
-  --cal-marker: #16a34a;
-  --cal-bg: #ffffff;
-  --cal-fg: #1f2328;
-  --cal-fg-soft: #6b7280;
-  --cal-muted: #b9bfc7;
-  --cal-line: #e6e8eb;
-  --cal-press: #eef1f5;
-  --cal-today-ring: #c7ccd3;
+  /* days that have a work list: dashed dark-green outline + light-green fill */
+  --cal-marker: var(--primary-700, #1f6b43);
+  --cal-marker-fill: var(--primary-50, #e8f3ec);
+  --cal-marker-press: var(--primary-200, #a7d3b5);
+  --cal-marker-fg: #ffffff;
+  --cal-bg: var(--surface, #ffffff);
+  --cal-fg: var(--text, #2b2f2c);
+  --cal-fg-soft: var(--text-muted, #5f6661);
+  --cal-muted: #bdbfb8;
+  --cal-line: var(--border, #dedcd3);
+  --cal-press: var(--primary-50, #e8f3ec);
+  --cal-today-ring: var(--primary-200, #a7d3b5);
   --cal-radius: 14px;
   --cal-cell: 11px; /* cell corner radius */
 
@@ -171,7 +176,8 @@
   font-variant-numeric: tabular-nums;
   color: var(--cal-fg);
   background: transparent;
-  border: 0;
+  /* transparent on every day so a marked day's dashed border doesn't resize it */
+  border: 1.5px dashed transparent;
   border-radius: var(--cal-cell);
   cursor: pointer;
 }
@@ -217,15 +223,32 @@
 }
 
 /* ===== Scheduled-day markers ===== */
+.cal-day.is-marked {
+  background: var(--cal-marker-fill);
+  border-color: var(--cal-marker);
+}
+
+.cal-day.is-marked:not(:disabled):active {
+  background: var(--cal-marker-press);
+}
+
+/* selected wins the fill; the dashed edge stays so it still reads as a work day */
+.cal-day.is-marked.is-selected {
+  background: var(--cal-accent);
+  border-color: var(--primary-900, #123d27);
+}
+
+.cal-day.is-marked.is-outside {
+  background: transparent;
+  border-color: var(--cal-marker-press);
+}
+
+/* the dot is replaced by the outline; it stays in the layout so numbers line
+   up with unmarked days (which reserve the same row via ::after) */
 .cal-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
-  background: var(--cal-marker);
-}
-
-.cal-day.is-selected .cal-dot {
-  background: var(--cal-accent-fg);
+  visibility: hidden;
 }
 
 .cal-count {
@@ -239,7 +262,7 @@
   line-height: 1;
   border-radius: 999px;
   background: var(--cal-marker);
-  color: #fff;
+  color: var(--cal-marker-fg);
 }
 
 .cal-day.is-selected .cal-count {
@@ -247,7 +270,6 @@
   color: var(--cal-accent);
 }
 
-.cal-day.is-outside .cal-dot,
 .cal-day.is-outside .cal-count {
   opacity: 0.45;
 }
@@ -350,11 +372,13 @@
   color: var(--cal-fg-soft);
 }
 
+/* a mini marked day */
 .cal-legend-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cal-marker);
+  width: 14px;
+  height: 14px;
+  border: 1.5px dashed var(--cal-marker);
+  border-radius: 4px;
+  background: var(--cal-marker-fill);
 }
 
 .cal-live {

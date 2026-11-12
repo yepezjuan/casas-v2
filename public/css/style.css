@@ -1,11 +1,178 @@
-/* ===== Landing page (index.ejs) ===== */
-/* light grey behind the whole page, header included */
-body:has(.landing) {
-  background-color: #f0f1f3;
+/* ===== Color tokens =====
+ * Change the palette here; every rule below reads these.
+ * primary-500 is the brand green (main actions), 700/900 are its hover and
+ * pressed states, 50/200 are tints for selected/success backgrounds.
+ * accent (soil) is used sparingly, for scheduled-day markers.
+ */
+:root {
+  --primary-50: #e8f3ec;
+  --primary-200: #a7d3b5;
+  --primary-500: #2f8f5b;
+  --primary-700: #1f6b43;
+  --primary-900: #123d27;
+  --primary-ring: rgba(47, 143, 91, 0.3);
+
+  --accent: #c08a4e;
+  --accent-50: #f6ede2;
+  --accent-900: #6b4a22;
+
+  --warning: #e0a526;
+  --warning-50: #fbf0d9;
+  --warning-900: #7a5a12;
+
+  --danger: #c2453a;
+  --danger-700: #a1372e;
+  --danger-50: #f9e3e1;
+  --danger-900: #7f2a23;
+
+  --bg: #f7f6f1;
+  --surface: #ffffff;
+  --surface-alt: #f2f1eb; /* zebra rows, pressed states */
+  --text: #2b2f2c;
+  --text-muted: #5f6661;
+  --text-faint: #8a8f8b;
+  --border: #dedcd3;
+  --border-soft: #ebe9e2;
 }
 
+/* ===== Base ===== */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: var(--primary-700);
+}
+a:hover {
+  color: var(--primary-900);
+}
+
+/* ===== Bootstrap color overrides =====
+ * Bootstrap 5.0 has no CSS variables for these, so they are overridden here.
+ */
+.btn-primary {
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: var(--primary-700);
+  border-color: var(--primary-700);
+  color: #fff;
+}
+.btn-primary:active,
+.btn-primary.active,
+.btn-check:checked + .btn-primary {
+  background-color: var(--primary-900);
+  border-color: var(--primary-900);
+  color: #fff;
+}
+
+.btn-outline-primary {
+  color: var(--primary-700);
+  border-color: var(--primary-500);
+  background-color: transparent;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:active {
+  background-color: var(--primary-50);
+  border-color: var(--primary-700);
+  color: var(--primary-900);
+}
+
+/* "Open in Google Maps": the go-do-it action, a deeper green than primary */
+.btn-success {
+  background-color: var(--primary-700);
+  border-color: var(--primary-700);
+  color: #fff;
+}
+.btn-success:hover,
+.btn-success:active {
+  background-color: var(--primary-900);
+  border-color: var(--primary-900);
+  color: #fff;
+}
+
+/* secondary = quiet: soft green tint, like a chip */
+.btn-secondary {
+  background-color: var(--primary-50);
+  border-color: var(--primary-200);
+  color: var(--primary-900);
+}
+.btn-secondary:hover,
+.btn-secondary:active {
+  background-color: var(--primary-200);
+  border-color: var(--primary-200);
+  color: var(--primary-900);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover,
+.btn-danger:active {
+  background-color: var(--danger-700);
+  border-color: var(--danger-700);
+  color: #fff;
+}
+
+.btn-outline-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+  background-color: transparent;
+}
+.btn-outline-danger:hover,
+.btn-outline-danger:active {
+  background-color: var(--danger-50);
+  border-color: var(--danger-700);
+  color: var(--danger-900);
+}
+
+.btn:focus,
+.btn-check:focus + .btn {
+  box-shadow: 0 0 0 0.25rem var(--primary-ring);
+}
+.btn-danger:focus,
+.btn-outline-danger:focus {
+  box-shadow: 0 0 0 0.25rem rgba(194, 69, 58, 0.3);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 0.25rem var(--primary-ring);
+}
+.form-check-input:checked {
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
+}
+
+.alert-success {
+  background-color: var(--primary-50);
+  border-color: var(--primary-200);
+  color: var(--primary-900);
+}
+.alert-info {
+  background-color: var(--accent-50);
+  border-color: #e6d2b8;
+  color: var(--accent-900);
+}
+.alert-warning {
+  background-color: var(--warning-50);
+  border-color: #f0d9a3;
+  color: var(--warning-900);
+}
+.alert-danger {
+  background-color: var(--danger-50);
+  border-color: #efc2bd;
+  color: var(--danger-900);
+}
+
+/* ===== Landing page (index.ejs) ===== */
 .landing {
-  background-color: #f0f1f3;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,9 +183,10 @@ body:has(.landing) {
 .landing-island {
   width: 100%;
   max-width: 400px;
-  background-color: #fff;
+  background-color: var(--surface);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px rgba(18, 61, 39, 0.06);
   padding: 32px 24px;
   text-align: center;
 }
@@ -27,11 +195,12 @@ body:has(.landing) {
   margin: 0 0 8px;
   font-size: 24px;
   font-weight: 700;
+  color: var(--primary-900);
 }
 
 .landing-tagline {
   margin: 0 0 24px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* full-width, thumb-sized buttons */
@@ -67,11 +236,11 @@ body:has(.landing) {
 }
 
 .client-table tbody tr:nth-child(odd) {
-  background-color: #ffffff;
+  background-color: var(--surface);
 }
 
 .client-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: var(--surface-alt);
 }
 
 /* ===== Action buttons ===== */
@@ -88,10 +257,10 @@ body:has(.landing) {
 }
 
 .edit-btn {
-  background-color: #4a90d9;
+  background-color: var(--primary-500);
 }
 .delete-btn {
-  background-color: #d9534f;
+  background-color: var(--danger);
 }
 
 @media (max-width: 600px) {
@@ -103,11 +272,11 @@ body:has(.landing) {
 .list-section-title {
   margin: 20px 0 8px;
   font-size: 15px;
-  color: #4a4a4a;
+  color: var(--text-muted);
 }
 
 .empty-row td {
-  color: #888;
+  color: var(--text-faint);
   font-style: italic;
 }
 
@@ -124,10 +293,10 @@ body:has(.landing) {
   display: flex;
   flex-direction: column;
   margin: 12px 0;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden; /* keeps row tint inside the rounded corners */
-  background-color: #fff;
+  background-color: var(--surface);
 }
 
 .clientList:empty {
@@ -140,7 +309,7 @@ body:has(.landing) {
   gap: 12px;
   min-height: 56px;
   padding: 12px 16px;
-  border-bottom: 1px solid #ededed;
+  border-bottom: 1px solid var(--border-soft);
   cursor: pointer;
   color: inherit;
   text-decoration: none;
@@ -151,26 +320,40 @@ body:has(.landing) {
   border-bottom: none;
 }
 .client-row:active {
-  background-color: #f0f0f0;
+  background-color: var(--surface-alt);
 }
 
 .check {
   flex: 0 0 auto;
   width: 22px;
   height: 22px;
-  border: 2px solid #b5b5b5;
+  border: 2px solid var(--text-faint);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.client-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* lets long text wrap instead of widening the row */
+}
+.client-row-name {
+  font-weight: 500;
+}
+.client-row-address {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere; /* long addresses wrap on phone width */
+}
+
 .btn-check:checked + .client-row {
-  background-color: #eef5ff;
+  background-color: var(--primary-50);
 }
 .btn-check:checked + .client-row .check {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
 }
 .btn-check:checked + .client-row .check::after {
   content: "";
@@ -182,13 +365,13 @@ body:has(.landing) {
 }
 
 .btn-check:focus-visible + .client-row {
-  outline: 2px solid #0d6efd;
+  outline: 2px solid var(--primary-500);
   outline-offset: -2px;
 }
 
 .chevron {
   margin-left: auto;
-  color: #999;
+  color: var(--text-faint);
   font-size: 20px;
 }
 
@@ -198,7 +381,7 @@ body:has(.landing) {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #0d6efd;
+  background-color: var(--primary-700);
   color: #fff;
   font-size: 13px;
   line-height: 24px;
@@ -217,7 +400,7 @@ body:has(.landing) {
 .route-note {
   margin: 8px 0 0;
   font-size: 14px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .route-note:empty {

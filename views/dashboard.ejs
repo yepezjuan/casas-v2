@@ -54,7 +54,12 @@
            name="clientIds" value="<%= el._id %>" autocomplete="off">
     <label class="client-row" for="client_<%= el._id %>">
       <span class="check" aria-hidden="true"></span>
-      <span class="client-row-name"><%= el.name %></span>
+      <span class="client-row-text">
+        <span class="client-row-name"><%= el.name %></span>
+        <% if (el.address) { %>
+          <span class="client-row-address"><%= el.address %></span>
+        <% } %>
+      </span>
     </label>
   <% }) %>
 </div>
