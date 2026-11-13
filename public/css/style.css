@@ -218,6 +218,58 @@ a:hover {
   font-weight: 600;
 }
 
+/* ===== Log in / sign up (login.ejs, signup.ejs) ===== */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.auth-island {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(18, 61, 39, 0.06);
+  padding: 32px 24px;
+}
+
+.auth-title {
+  margin: 0 0 24px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-900);
+}
+
+/* back arrow, top-left of the card; 44px so it's easy to tap */
+.auth-back {
+  position: absolute;
+  top: 20px;
+  left: 12px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--primary-700);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.auth-back:hover,
+.auth-back:active {
+  background-color: var(--primary-50);
+  color: var(--primary-900);
+}
+
+.auth-island .btn {
+  min-height: 48px;
+  font-weight: 600;
+}
+
 /* ===== Table ===== */
 /* wrap the <table> in <div class="table-wrapper"> ... </div> for this to scroll */
 .table-wrapper {
